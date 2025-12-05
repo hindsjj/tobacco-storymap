@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idaho Youth Tobacco Exposure Study</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" />
+    <script src='js/idaho_boundary_geojson.js'></script>
+    <script src='js/idahoCounties.geojson.js'></script>
+    <script src='js/2024_HH_Tobacco_Spending.js'></script>
+    <script src='js/sch_districts2023_geojson.js'></script>
+    <script src='js/2024_schools_retail_proximity.js'></script>
+    <script src='js/2024_retail_schools_proximity.js'></script>
+    <script src='js/2024_schools_json.js'></script>
+    <script src='js/2023_schools_enrollments_districts_new_json.js'></script> <!-- const schools2023 -->
+    <script src='js/2023_district_pct_students1000ft_json.js'></script>  <!-- const districtEnrollmentsWithin1k -->
+    <script src='js/combined_pop_retail_proximity2024_json.js'></script>  <!-- const county_retailStats -->
+
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #map {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        #map.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .map-legend {
+            color:#333333;
+            opacity:0.9;
+            padding:10px;
+            background:white;
+            border: 2px solid #ccc;
+            font-size: 15px;
+        }
+
+        .blue-circle {
+            width: 10px;
+            height: 10px;
+            background-color: #67a9cf;  /*deepskyblue;*/
+            border-radius: 50%; 
+            display: inline-block;
+        }
+        .red-circle {
+            width: 10px;
+            height: 10px;
+            background-color: crimson;
+            border-radius: 50%; 
+            display: inline-block;
+        }
+
+        .magenta-circle {
+            width: 12px;
+            height: 12px;
+            background-color: magenta;
+            border-radius: 50%; 
+            display: inline-block;
+        }
+
+        .grey-circle {
+            width: 15px;
+            height: 15px;
+            background-color: black;
+            opacity: 0.4;
+            border-radius: 50%; 
+            display: inline-block;
+        }
+
+        .triangle-up {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 12px solid #a6611a;
+        }
+
+        .square {
+            width: 10px;
+            height: 10px;
+            background: #ef8a62;
+            opacity: 0.7;
+            display: inline-block;
+        }
+
+        .circle-letter-icon {
+            height: 20px;
+            width: 20px;
+            border: 2px solid #fff; /* Border color */
+            border-radius: 50%; /* Makes it a circle */
+            background-color: darkorange;
+
+            /* Center the letter */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            /* Style the letter */
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .circle-t-orange { background-color: darkorange; }
+        .circle-v-purple { background-color: purple; }
+        .circle-red { background-color: crimson; } 
+        
+        
+        .story-container {
+            position: relative;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .story-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 50px 0;
+            pointer-events: none;
+        }
+
+        .chart-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 0;
+            pointer-events: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #6e7074 0%, #1d1e1e 100%);
+            position: relative;
+            z-index: 3;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            max-width: 1000px;
+            width: 90%;
+        }
+
+        .chart-container h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .chart-container p {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .story-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 500px;
+            pointer-events: auto;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .story-content.fade-out {
+            opacity: 0.3;
+            transform: translateY(20px);
+        }
+
+        .story-content h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .story-content h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .story-content p {
+            color: #34495e;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .stat-highlight {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .stat-highlight strong {
+            color: #2c3e50;
+            font-size: 1.3rem;
+        }
+
+        .spacer {
+            height: 50vh;
+        }
+
+        #intro {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 3;
+        }
+
+        #intro .content {
+            text-align: center;
+            color: white;
+            padding: 40px;
+            max-width: 800px;
+        }
+
+        #intro h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #intro p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        .arrow-down {
+            width: 30px;
+            height: 30px;
+            border-left: 3px solid white;
+            border-bottom: 3px solid white;
+            transform: rotate(-45deg);
+        }
+
+        .form-select {
+            font-size: 1.1rem;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #f3f3f3; /*#f8f9fa;*/
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .stat-box h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        .stat-box .label {
+            color: #474f50;
+            font-size: 1rem;
+        }
+
+        .alert-brown {
+            background-color: #524037;
+            border-radius: 10px;
+        }
+        .alert-brown p { color: #fff; }
+        .alert-brown h1 { color: lemonchiffon; }
+
+    </style>
+</head>
+<body>
+    <div id="intro">
+        <div class="content">
+            <h1>Idaho Youth Tobacco Exposure Study</h1>
+            <p>Understanding the vulnerability of K-12 students to tobacco retail and advertising across Idaho</p>
+            <div class="scroll-indicator">
+                <div class="arrow-down"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="story-container">
+        <div class="spacer"></div>
+        
+        <!-- Idaho State Overview -->
+        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="idaho">
+            <div class="container">
+                <div class="story-content">
+                    <h2>The State of Idaho</h2>
+                    <p>Idaho is home to over 800 K-12 schools serving over 300,000 students across diverse urban and rural communities. This study examines how tobacco retail locations intersect with the daily environments of school-age children.</p>
+                    <p>Understanding these patterns is crucial for public health policy, zoning regulations, and protecting youth from early tobacco exposure.</p>
+                    <p>Data for this analysis are from 2023 and 2024. *ELABORATE*</p>
+                    <hr />
+                    <p>LEGEND:&nbsp;&nbsp; <span class="blue-circle"></span> School &nbsp;&nbsp; <span class="square"></span> Tobacco Retailer</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schools & Retailers Overview -->
+        <div class="chart-section" data-type="chart">
+            <div class="chart-container">
+                <h2>Idaho Schools &amp; Tobacco Retailers Overview</h2>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="stat-box text-center">
+                            <div class="value">~845</div>
+                            <div class="label">Total K-12 Schools</div>
+                            <img src="img/school_icon.png" style="width:210px" class="mx-auto" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-box text-center">
+                            <div class="value">~320K</div>
+                            <div class="label mb-4">K-12 Students</div>
+                            <img src="img/students_icon.png" style="width:190px" class="mx-auto" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-box text-center">
+                            <div class="value">~1,660</div>
+                            <div class="label">Total Tobacco Retailers</div>
+                            <img src="img/tobacco_retailer_icon.png" style="width:210px" class="mx-auto" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center mt-5">
+                    <div class="col-md-6">
+                        <div id="schoolsChart"></div>
+                        <p class="mt-3">As of 2023, 90% of schools in Idaho are public schools.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="retailersChart"></div>
+                        <p class="mt-3">Convenience stores and gas stations make up the vast majority of tobacco retail, creating high accessibility.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proximity Map -->
+        <div class="story-section" data-lat="42.88" data-lng="-112.47" data-zoom="13" data-type="map" data-map-style="proximity">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Retail Proximity</h2>
+                    <p>A common measure of exposure to tobacco retail is 1,000 feet. 
+                        For this analysis, we define vulnerable areas for youth, or "tobacco exposure zones", 
+                        as those areas within a 1,000-foot radius of a tobacco retailer. 
+                        Exposure zones are indicated by grey circles on the map. Magenta circles 
+                        indicate schools that lie within tobacco exposure zones.
+                    </p>
+                    <p>Notice the dense clustering of tobacco retail in central areas of Pocatello, which increases competitive pricing and creates advertising hotspots.</p>
+                    <p></p>
+                    <hr />
+                    <p>LEGEND:<br>
+                        <span class="magenta-circle"></span> School within 1,000 ft of tobacco retailer<br>
+                        <span class="grey-circle"></span> Tobacco exposure zone</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proximity Analysis & Retail Clustering -->
+        <div class="chart-section" data-type="chart">
+            <div class="chart-container">
+                <h2>Proximity to Schools</h2>
+                <p class="text-center">The proximity of tobacco retailers to schools is a critical factor in youth exposure.</p> 
+                <div class="d-flex justify-content-center mb-5">
+                    <img src="img/sch-retail-1000ft.png" style="max-width:500px;width:100%" class="mx-auto img-fluid" />
+                    <div class="alert alert-brown mx-4">
+                        <h1 class="display-4 text-center">19.6%</h1>
+                        <p class="text-center mb-0">of schools in Idaho are within <span class="fs-5" style="color:lemonchiffon"><strong>1,000 feet</strong></span> of at least one tobacco retailer</p>
+                    </div>
+                </div>
+                <hr />
+                <h2 class="mt-5">Retail Clustering</h2>
+                <p class="text-center">Clustering of multiple retailers increases competitive pricing and marketing intensity.</p>
+                
+                <div class="d-flex justify-content-center">
+                    <div class="alert alert-brown mx-4 mt-2">
+                        <h1 class="display-4 text-center">40.4%</h1>
+                        <p class="text-center mb-0">of tobacco retailers are within <span class="fs-5" style="color:lemonchiffon"><strong>500 feet</strong></span> of another retailer</p>
+                    </div>
+                    <img src="img/r2r_500ft.png" style="max-width:500px;width:100%" class="img-fluid" />
+                </div>
+            </div>
+        </div>
+
+       
+        <!-- County Spending Map -->
+        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="spending">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Household Tobacco Spending by County</h2>
+                    <p>The map displays average annual household spending on tobacco products across Idaho counties. Darker shades indicate higher spending levels. Click on a county to see details.</p>
+                    <p>This metric reveals geographic patterns in tobacco consumption and helps identify communities where youth may face higher exposure to tobacco use in their households and neighborhoods.</p>
+                    <div class="d-flex justify-content-center">
+                        <img src="img/spending_icon.png" style="width:170px" class="pe-4" />
+                        <div class="stat-highlight fs-5">
+                            Spending ranges from $300 to $631 per household annually
+                        </div>
+                    </div>
+                    <small>Source: xxx</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- County Statistics -->
+        <div class="chart-section" data-type="chart">
+            <div class="chart-container">
+                <h2>County-Level Analysis</h2>
+                <p>Select a county to view detailed statistics about student exposure to tobacco retail.</p>
+                
+                <select class="form-select" id="countySelect">
+                    <option value="">Select a County</option>
+                    <option value="Ada">Ada County</option>
+                    <option value="Canyon">Canyon County</option>
+                    <option value="Kootenai">Kootenai County</option>
+                    <option value="Bonneville">Bonneville County</option>
+                    <option value="Twin Falls">Twin Falls County</option>
+                    <option value="Bannock">Bannock County</option>
+                    <option value="Nez Perce">Nez Perce County</option>
+                    <option value="Madison">Madison County</option>
+                </select>
+
+                <div id="countyStats" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="countyStudents">-</div>
+                                <div class="label">Total Students</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="countyExposedStudents">-</div>
+                                <div class="label">Students Near Retailers</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="countyExposedPercent">-</div>
+                                <div class="label">Percent Exposed</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="countyRetailers">-</div>
+                                <div class="label">Tobacco Retailers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- School Districts Map -->
+        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="districts">
+            <div class="container">
+                <div class="story-content">
+                    <h2>School District Boundaries</h2>
+                    <p>Idaho's public school districts vary dramatically in size, student population, and geographic setting. This map shows district boundaries across the state.</p>
+                    <p>Warmer colors on the map indicate higher percentages of students exposed to tobacco retail within the county. These are typically rural areas, with fewer schools and lower populations.</p>
+                    <p>Analyzing exposure at the district level helps identify which educational communities face the greatest challenges from nearby tobacco retail.</p>
+                    <p>Click on a district to see details.</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- District Statistics -->
+        <div class="chart-section" data-type="chart">
+            <div class="chart-container">
+                <h2>School District Analysis</h2>
+                <p>Select a school district to view detailed statistics about student exposure to tobacco retail.</p>
+                
+                <select class="form-select" id="districtSelect">
+                    <option value="">Select a School District</option>
+                    <option value="Boise">Boise Independent District</option>
+                    <option value="West Ada">West Ada School District</option>
+                    <option value="Coeur d'Alene">Coeur d'Alene School District</option>
+                    <option value="Idaho Falls">Idaho Falls School District</option>
+                    <option value="Pocatello">Pocatello/Chubbuck School District</option>
+                    <option value="Twin Falls">Twin Falls School District</option>
+                    <option value="Nampa">Nampa School District</option>
+                    <option value="Lewiston">Lewiston Independent District</option>
+                </select>
+
+                <div id="districtStats" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="districtStudents">-</div>
+                                <div class="label">Total Students</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="districtExposedStudents">-</div>
+                                <div class="label">Students Near Retailers</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="districtExposedPercent">-</div>
+                                <div class="label">Percent Exposed</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <div class="value" id="districtRetailers">-</div>
+                                <div class="label">Tobacco Retailers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boise Case Study -->
+        <div class="story-section" data-lat="43.6150" data-lng="-116.2023" data-zoom="12" data-type="map" data-map-style="boise">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Case Study: Boise, Idaho</h2>
+                    <p>As Idaho's capital and largest city, Boise provides a detailed case study of urban youth tobacco exposure patterns.</p>
+                    <p>The city's dense network of schools and commercial areas creates complex patterns of exposure, with some neighborhoods showing significantly higher concentrations of tobacco retail near schools.</p>
+                    <div class="stat-highlight">
+                        <strong>42.1%</strong> of Boise schools have at least one tobacco retailer within 1,000 feet
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.0/plotly.min.js"></script>
+    <script>
+        let map = L.map('map', {
+            zoomControl: true,
+            scrollWheelZoom: false
+        }).setView([44.0682, -114.7420], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        /* -------------- */
+        /* Idaho Boundary */
+        /* -------------- */
+        const idahoBndyGroup = new L.featureGroup();
+        const idahoBoundary = L.geoJSON(idahoBndy, {
+            style: {
+                color: '#555', // border color
+                weight: 3,
+                opacity: 1,
+                fillColor: 'white',
+                fillOpacity: 0.0
+            }
+        });
+        idahoBoundary.addTo(idahoBndyGroup);
+        idahoBndyGroup.addTo(map); //.bringToBack();
+
+
+        // County spending on tobacco
+        let spending;
+        var countyPolySpendingGroup = new L.featureGroup();
+        const countyPolysSpending = L.geoJSON(counties, {
+            style: {
+                color: '#555', // border color
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.6
+            },
+            onEachFeature: function(feature, layer) {
+                hh_spending.forEach(function(val) {
+                    if (val.GEOID === parseInt(feature.properties.GEOID)) {
+                        spending = parseFloat(val.Household_Spending_2024_Avg);
+                    }
+                });
+
+                switch(true) {
+                    case (spending < 370): spendingColor = '#ffffcc'; break;
+                    case (spending < 440): spendingColor = '#a1dab4'; break;
+                    case (spending < 500): spendingColor = '#41b6c4'; break;
+                    default: spendingColor = '#225ea8'; break;
+                }
+
+                layer.setStyle({ fillColor: spendingColor });
+                layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p class='my-1' style='font-size:16px'>Public Health District " + feature.properties.PHD + "</p><p style='font-size:16px' class='alert alert-warning'>2024 Avg Household Spending<br>on Smoking Products: <strong>$" + spending.toFixed(0) + "</strong></p>");
+                
+            }
+        }).addTo(countyPolySpendingGroup);
+        //countyPolySpendingGroup.addTo(map);
+
+        
+        const schoolDistGroup = new L.featureGroup();
+        async function loadSchDistricts() {
+            try {
+                const schDistLookup = {};
+                districtEnrollmentsWithin1k.forEach(item => {
+                    schDistLookup[item.SchoolDistrictLong] = {
+                        PctWithin1000ft: item.PctWithin1000ft,
+                        TotalSchools: item.TotalSchools,
+                        TotalStudents: item.TotalStudents,
+                        StudentsWithin1000ft: item.StudentsWithin1000ft
+                    };
+                });
+                
+                // Define color scale for ADI_STATERNK (0-10 range)
+                function getStudentsExposedColor(pct) {
+                    if (pct === undefined || pct === null) return '#CCCCCC'; // Gray for missing data
+                
+                    return  pct > 90  ? '#a20e30' :  // Darkest red
+                        pct > 80  ? '#d03931' :
+                        pct > 70  ? '#ea704a' :
+                        pct > 60  ? '#f2ab65' :
+                        pct > 50  ? '#f3d890' :
+                        pct > 40  ? '#cfe9ea' :
+                        pct > 30  ? '#a8d1e0' :
+                        pct > 20  ? '#76aaca' :
+                        pct > 10  ? '#4c77b0' :
+                                    '#3a3e94';   
+                }
+                
+                // Style function for ADI polygons
+                function styleStudentsExposed(feature) {
+                    const matchedData = schDistLookup[feature.properties.NAME];
+                    const pct = matchedData ? matchedData.PctWithin1000ft : null;
+                    
+                    return {
+                        fillColor: getStudentsExposedColor(pct),
+                        weight: 1,
+                        opacity: 1,
+                        color: '#555', //getStudentsExposedColor(pct),
+                        fillOpacity: 0.7
+                    };
+                }
+                
+                // Add GeoJSON layer to the feature group
+                L.geoJSON(sch_districts, {
+                    style: styleStudentsExposed,
+                    onEachFeature: function(feature, layer) {
+                        const matchedData = schDistLookup[feature.properties.NAME];
+                        const distName = (feature.properties.NAME).split(' ').slice(0, -1).join(' ');
+
+                        if (matchedData) {
+                            const num = (matchedData.StudentsWithin1000ft).toLocaleString();
+                            const totStudents = (matchedData.TotalStudents).toLocaleString();
+                            const totSchools = matchedData.TotalSchools;
+                            const pct = Math.round(matchedData.PctWithin1000ft * 10) / 10;
+                            
+                            layer.bindPopup(
+                                `<div class="h5">${distName}</div>` + 
+                                `<div class="h6">${pct}% of students are within 1,000 ft<br>of tobacco retail</div>` +
+                                `<div class="fs-6">(${num} of ${totStudents} students from ${totSchools} schools)</div>`
+                            );
+                        } else {
+                            layer.bindPopup(
+                                `<div class="h5">${distName}</div>` + 
+                                `<div class="h5">% of students that are within 1,000 ft<br>of tobacco retail</div>` +
+                                `<div class="fs-6">No data</div>`
+                                
+                            );
+                        }
+                    }
+                }).addTo(schoolDistGroup);
+                
+                // Optionally add to map initially
+                // schoolDistGroup.addTo(map);
+                
+            } catch (error) {
+                console.error('Error loading School District info:', error);
+            }
+        }
+
+        // Call the function to load the overlay
+        loadSchDistricts();
+
+
+        // -------------- //
+        // Load Retailers //
+        // -------------- //
+        var nonVapeCircleIcon = L.divIcon({
+            html: '<span class="circle-letter-icon circle-t-orange">T</span>',
+            iconSize: [10, 10], // Match the width and height from CSS
+            iconAnchor: [10, 10] // Center the icon on the marker's location
+        });
+        var nonVapeCircleIcon1k = L.divIcon({
+            html: '<span class="circle-letter-icon circle-red">T</span>',
+        });
+        var vapeCircleIcon = L.divIcon({
+            html: '<span class="circle-letter-icon circle-v-purple">V</span>',
+            iconSize: [10, 10], 
+            iconAnchor: [10, 10] 
+        });
+        var vapeCircleIcon1k = L.divIcon({
+            html: '<span class="circle-letter-icon circle-red">V</span>',
+            iconSize: [10, 10],
+            iconAnchor: [10, 10] 
+        });
+
+
+        var retailersGroup = new L.featureGroup();
+        var retailersGroup1k = new L.featureGroup();
+        var exposureZonesGroup = new L.featureGroup();
+        var setTobaccoIcon = nonVapeCircleIcon;
+
+        retailers.forEach(retailer => {
+            var county = retailer.County;
+            var lat = retailer.Latitude;
+            var lng = retailer.Longitude;
+            var retailerName = retailer.OutletName;
+            var retailerType = retailer.VendorType;
+            var address = retailer.Address;
+            var city = retailer.City;
+            var within1k = retailer.Within1000ftSch;
+
+            // add retailers within 1,000 ft to retailersGroup1k
+            if (within1k == 'yes') {
+                if( retailerType.toLowerCase().includes('vap') || retailerName.toLowerCase().includes('vap') ) {
+                    setTobaccoIcon = vapeCircleIcon1k;
+                } else {
+                    setTobaccoIcon = nonVapeCircleIcon1k;
+                }
+                var circleIcon = L.marker( [lat,lng], { icon: setTobaccoIcon });
+                circleIcon.bindPopup('<b>' + retailerName + '</b><br>' + address + '<br>' + city + ', ID<br>' + retailerType);
+                retailersGroup1k.addLayer(circleIcon);
+            } 
+
+            // add ALL retailers to retailersGroup
+            if( retailerType.toLowerCase().includes('vap') || retailerName.toLowerCase().includes('vap') ) {
+                setTobaccoIcon = vapeCircleIcon;
+            } else {
+                setTobaccoIcon = nonVapeCircleIcon;
+            }
+
+            //var circleIcon = L.marker( [lat,lng], { icon: setTobaccoIcon });
+            //circleIcon.bindPopup('<b>' + retailerName + '</b><br>' + address + '<br>' + city + ', ID<br>' + retailerType);
+            //retailersGroup.addLayer(circleIcon);
+            //retailersGroup.addTo(map);
+
+            var triangleIcon = L.divIcon({
+                className: 'square',
+                iconSize: [12, 12], // Width and height of the icon container
+                iconAnchor: [12, 12] // Half of width, and full height to anchor the tip
+            });
+            var retailTriangleMarker = L.marker([lat,lng], { icon: triangleIcon });
+            retailTriangleMarker.bindPopup('<b>' + retailerName + '</b><br>' + address + '<br>' + city + ', ID<br>' + retailerType);
+            retailersGroup.addLayer(retailTriangleMarker);
+            /*
+            var retailCircleIcon = L.circleMarker( [lat,lng], {
+                color: '#a6611a', //'crimson',        // Color of the stroke (outline)
+                weight: 0,       
+                fillColor: '#a6611a', //'crimson',   // Color of the fill
+                fillOpacity: 0.7,    // Opacity of the fill
+                radius: 6 // The radius in pixels
+            });
+            retailCircleIcon.bindPopup('<b>' + retailerName + '</b><br>' + address + '<br>' + city + ', ID<br>' + retailerType);
+            retailersGroup.addLayer(retailCircleIcon);
+            */
+            
+            
+            retailersGroup.addTo(map);
+
+            var radiusInMeters = 304.8;
+            var exposureCircle = L.circle( [lat,lng], {
+                color: 'red',        // Color of the stroke (outline)
+                weight: 0,       
+                //fillColor: '#f03',   // Color of the fill
+                fillColor: 'black',   // Color of the fill
+                fillOpacity: 0.3,    // Opacity of the fill
+                radius: radiusInMeters // The radius in meters
+            });
+            exposureZonesGroup.addLayer(exposureCircle);
+        });
+
+
+        // -------------- //
+        //  Load Schools  //
+        // -------------- //
+        /*var schoolSquareIcon = L.divIcon({
+            //html: '<span class="fa-stack" style="font-size: 0.45rem;"><i class="fas fa-square fa-stack-2x" style="color:deepskyblue;border:1px solid white;"></i><i class="fas fa-s fa-stack-1x fa-inverse" style="color:white"></i></span>',
+            html: '<span class="fa-stack" style="font-size: 0.55rem;"><i class="fas fa-square fa-stack-2x" style="color:deepskyblue;"></i><i class="fa fa-university fa-stack-1x fa-inverse" style="color:white;"></i></span>',
+            className: 'school-icon',
+            iconSize: [10, 10], // Match the width and height from CSS
+            iconAnchor: [10, 10] // Center the icon on the marker's location
+        });
+        var schoolSquareIcon1k = L.divIcon({
+            //html: '<span class="fa-stack" style="font-size: 0.45rem;"><i class="fas fa-square fa-stack-2x" style="color:magenta;border:1px solid white;"></i><i class="fas fa-s fa-stack-1x fa-inverse" style="color:white"></i></span>',
+            html: '<span class="fa-stack" style="font-size: 0.55rem;"><i class="fas fa-square fa-stack-2x" style="color:magenta;"></i><i class="fa fa-university fa-stack-1x fa-inverse" style="color:white;"></i></span>',
+            className: 'school-icon-1k',
+            iconSize: [10, 10], // Match the width and height from CSS
+            iconAnchor: [10, 10] // Center the icon on the marker's location
+        });
+
+
+        var setCircleIcon = schoolSquareIcon;
+        */
+
+        var schoolsGroup = new L.featureGroup();
+        var schoolsGroup1k = new L.featureGroup();
+        schools2023.forEach(school => {
+            var county = school.County;
+            var lat = school.Latitude;
+            var lng = school.Longitude;
+            var schoolName = school.SchoolName;
+            var schoolType = school.Type;
+            var lowGrade = school.LowGrade;
+            var highGrade = school.HighGrade;
+            var address = school.Address;
+            var city = school.City;
+            var risk = school.Within1000ft;
+            var students = school.Students;
+            
+            //setCircleIcon = schoolSquareIcon;
+            //setCircleIcon = risk === 'yes' ? schoolSquareIcon1k : schoolSquareIcon;
+            //var circleIcon = L.marker( [lat,lng], { icon: schoolSquareIcon, pane: 'circleMarkerPane' });
+            //circleIcon.bindPopup('<b>' + schoolName + '</b><br>' + address + '<br>' + city + ', ID<br>[ ' + schoolType + ' ]<br>Grades: ' + lowGrade + ' - ' + highGrade + '<br>Number of students: ' + students);
+            
+            map.createPane('schoolMarkerPane');
+            map.getPane('schoolMarkerPane').style.zIndex = 650;
+            
+            var schoolCircleIcon = L.circleMarker( [lat,lng], {
+                pane: 'schoolMarkerPane',
+                color: '#67a9cf', //'deepskyblue',        // Color of the stroke (outline)
+                weight: 0,       
+                fillColor: '#67a9cf', //'deepskyblue',   // Color of the fill
+                fillOpacity: 0.7,    // Opacity of the fill
+                radius: 6
+                //radius: radiusInMeters // The radius in meters
+            });
+            schoolCircleIcon.bindPopup('<b>' + schoolName + '</b><br>' + address + '<br>' + city + ', ID<br>[ ' + schoolType + ' ]<br>Grades: ' + lowGrade + ' - ' + highGrade + '<br>Number of students: ' + students);
+
+            schoolsGroup.addLayer(schoolCircleIcon); 
+            schoolsGroup.addTo(map);
+
+            // for schools within 1k ft of retailer
+            if (risk === 'yes') {
+                var schoolCircleIcon1k = L.circleMarker( [lat,lng], {
+                    pane: 'schoolMarkerPane',
+                    color: 'magenta',       // Color of the stroke (outline)
+                    weight: 0,       
+                    fillColor: 'magenta',   // Color of the fill
+                    fillOpacity: 1,    // Opacity of the fill
+                    radius: 6
+                });
+                schoolCircleIcon1k.bindPopup('<b>' + schoolName + '</b><br>' + address + '<br>' + city + ', ID<br>[ ' + schoolType + ' ]<br>Grades: ' + lowGrade + ' - ' + highGrade + '<br>Number of students: ' + students);
+                schoolsGroup1k.addLayer(schoolCircleIcon1k);
+            }
+
+        });
+
+
+        
+        // Sample data for counties
+        const countyData = {
+            'Ada': { students: 78500, exposedStudents: 28420, retailers: 287 },
+            'Canyon': { students: 65200, exposedStudents: 22800, retailers: 178 },
+            'Kootenai': { students: 28900, exposedStudents: 9850, retailers: 142 },
+            'Bonneville': { students: 24600, exposedStudents: 8610, retailers: 98 },
+            'Twin Falls': { students: 18200, exposedStudents: 6370, retailers: 76 },
+            'Bannock': { students: 16800, exposedStudents: 5880, retailers: 71 },
+            'Nez Perce': { students: 7200, exposedStudents: 2520, retailers: 45 },
+            'Madison': { students: 8900, exposedStudents: 2670, retailers: 38 }
+        };
+
+        // Sample data for districts
+        const districtData = {
+            'Boise': { students: 26500, exposedStudents: 9540, retailers: 132 },
+            'West Ada': { students: 42000, exposedStudents: 14700, retailers: 155 },
+            'Coeur d\'Alene': { students: 10800, exposedStudents: 3780, retailers: 58 },
+            'Idaho Falls': { students: 11200, exposedStudents: 3920, retailers: 52 },
+            'Pocatello': { students: 12400, exposedStudents: 4340, retailers: 48 },
+            'Twin Falls': { students: 8900, exposedStudents: 3115, retailers: 42 },
+            'Nampa': { students: 16700, exposedStudents: 5850, retailers: 67 },
+            'Lewiston': { students: 4200, exposedStudents: 1470, retailers: 28 }
+        };
+
+        // Create Schools Chart
+        function createSchoolsChart() {
+            const data = [{
+                values: [761,82],
+                labels: ['Public Schools', 'Private Schools'],
+                type: 'pie',
+                marker: {
+                    colors: ['#0571b0', '#fee090']
+                },
+                textinfo: 'label+percent',
+                textposition: 'inside',
+                hoverinfo: 'label+value+percent'
+            }];
+
+            const layout = {
+                title: 'Idaho K-12 Schools by Type',
+                showlegend: false,
+                height: 350,
+                margin: { l: 30, r: 30, b: 30, t: 30 }
+            };
+
+            Plotly.newPlot('schoolsChart', data, layout, {responsive: true});
+        }
+
+        // Create Retailers Chart
+        function createRetailersChart() {
+            const data = [{
+                values: [843, 253, 229, 130, 124, 81],
+                labels: ['Convenience/<br>Gas Station', 'Tobacco/<br>Vape Shop', 'Grocer', 'Bar/Lounge', 'Discount/<br>Drug Store', 'Other', ],
+                type: 'pie',
+                marker: {
+                    colors: ['#b35806', '#f1a340', '#fee0b6', '#d8daeb', '#998ec3', '#542788']
+                },
+                textinfo: 'label+percent',
+                textposition: 'inside',
+                hoverinfo: 'label+value+percent'
+            }];
+
+            const layout = {
+                title: 'Tobacco Retailers by Type',
+                showlegend: false,
+                height: 350,
+                margin: { l: 30, r: 30, b: 30, t: 30 }
+            };
+
+            Plotly.newPlot('retailersChart', data, layout, {responsive: true});
+        }
+
+        // Create Proximity Chart
+        /*
+        function createProximityChart() {
+            const data = [{
+                x: ['Schools within 1,000 ft<br>of Retailer', 'Retailers within 500 ft<br>of Another Retailer'],
+                y: [19.6, 40.4],
+                type: 'bar',
+                orientation: 'horizontal',
+                marker: {
+                    color: ['#e74c3c', '#f39c12']
+                },
+                text: ['19.6%', '40.4%'],
+                textposition: 'auto',
+                textfont: {
+                    size: 16,
+                    color: 'white'
+                }
+            }];
+
+            const layout = {
+                yaxis: {
+                    title: 'Percentage (%)',
+                    range: [0, 100]
+                },
+                xaxis: {
+                    tickfont: { size: 12 }
+                },
+                showlegend: false,
+                height: 400
+            };
+
+            Plotly.newPlot('proximityChart', data, layout, {responsive: true});
+        } */
+
+        // Initialize charts
+        createSchoolsChart();
+        createRetailersChart();
+        //createProximityChart();
+
+        // County dropdown handler
+        document.getElementById('countySelect').addEventListener('change', function(e) {
+            const county = e.target.value;
+            const statsDiv = document.getElementById('countyStats');
+            
+            if (county && countyData[county]) {
+                const data = countyData[county];
+                const percent = ((data.exposedStudents / data.students) * 100).toFixed(1);
+                
+                document.getElementById('countyStudents').textContent = data.students.toLocaleString();
+                document.getElementById('countyExposedStudents').textContent = data.exposedStudents.toLocaleString();
+                document.getElementById('countyExposedPercent').textContent = percent + '%';
+                document.getElementById('countyRetailers').textContent = data.retailers;
+                
+                statsDiv.style.display = 'block';
+            } else {
+                statsDiv.style.display = 'none';
+            }
+        });
+
+        // District dropdown handler
+        document.getElementById('districtSelect').addEventListener('change', function(e) {
+            const district = e.target.value;
+            const statsDiv = document.getElementById('districtStats');
+            
+            if (district && districtData[district]) {
+                const data = districtData[district];
+                const percent = ((data.exposedStudents / data.students) * 100).toFixed(1);
+                
+                document.getElementById('districtStudents').textContent = data.students.toLocaleString();
+                document.getElementById('districtExposedStudents').textContent = data.exposedStudents.toLocaleString();
+                document.getElementById('districtExposedPercent').textContent = percent + '%';
+                document.getElementById('districtRetailers').textContent = data.retailers;
+                
+                statsDiv.style.display = 'block';
+            } else {
+                statsDiv.style.display = 'none';
+            }
+        });
+
+        const sections = document.querySelectorAll('[data-type]');
+        const mapElement = document.getElementById('map');
+        let currentSection = -1;
+        let currentMapType = null;
+        let newMapType = null;
+        let isChartVisible = false;
+
+        function updateView() {
+            const scrollPos = window.scrollY;
+            const windowHeight = window.innerHeight;
+
+            sections.forEach((section, index) => {
+                const rect = section.getBoundingClientRect();
+                const sectionMiddle = rect.top + rect.height / 2;
+
+                if (sectionMiddle > windowHeight * 0.2 && sectionMiddle < windowHeight * 0.9) {
+                    const type = section.dataset.type;
+                    //console.log("data-type: " + type);
+
+                    if (type === 'chart') {
+                        isChartVisible = true;
+                    } else if (type === 'map') {
+                        const content = section.querySelector('.story-content');
+                        const mapStyle = section.dataset.mapStyle;
+                        console.log("mapStyle: " + mapStyle);
+                        
+                        if (currentSection !== index) {
+                            currentSection = index;
+                            const lat = parseFloat(section.dataset.lat);
+                            let lng = parseFloat(section.dataset.lng) - 3;
+                            if (mapStyle === 'boise' || mapStyle === 'proximity') lng = parseFloat(section.dataset.lng);
+                            const zoom = parseInt(section.dataset.zoom);
+
+                            map.flyTo([lat, lng], zoom, {
+                                duration: 2,
+                                easeLinearity: 0.25
+                            });
+                            
+                            newMapType = mapStyle;
+                        }
+                        if (content) content.classList.remove('fade-out');
+                    }
+                } else {
+                    if (section.dataset.type === 'map') {
+                        const content = section.querySelector('.story-content');
+                        if (content) content.classList.add('fade-out');
+                    }
+                }
+            });
+
+            // Update map layers based on section
+            if (newMapType !== currentMapType) {
+                //console.log('NOT EQUAL');
+                currentMapType = newMapType;
+                
+                // Remove all overlays first
+                if (map.hasLayer(idahoBndyGroup)) {
+                    map.removeLayer(idahoBndyGroup);
+                    map.removeLayer(schoolsGroup);
+                    map.removeLayer(retailersGroup);
+                    document.querySelector('.schools-legend').style.display = 'none';
+                    document.querySelector('.retailers-legend').style.display = 'none';
+                }
+                if (map.hasLayer(schoolsGroup1k)) {
+                    map.removeLayer(idahoBndyGroup);
+                    map.removeLayer(schoolsGroup1k);
+                    map.removeLayer(exposureZonesGroup);
+                    document.querySelector('.schools1k-legend').style.display = 'none';
+                    document.querySelector('.exposurezone-legend').style.display = 'none';
+                }
+                if (map.hasLayer(countyPolySpendingGroup)) {
+                    map.removeLayer(countyPolySpendingGroup);
+                    document.querySelector('.spending-legend').style.display = 'none';
+                }
+                if (map.hasLayer(schoolDistGroup)) {
+                    map.removeLayer(schoolDistGroup);
+                    document.querySelector('.schdist-legend').style.display = 'none';
+                }
+                
+                // Add appropriate overlay
+                if (currentMapType === 'idaho') {
+                    idahoBndyGroup.addTo(map);
+                    retailersGroup.addTo(map);
+                    schoolsGroup.addTo(map).bringToFront();
+                    document.querySelector('.schools-legend').style.display = 'block';
+                    document.querySelector('.retailers-legend').style.display = 'block';
+                } else if (currentMapType === 'proximity') {
+                    idahoBndyGroup.addTo(map);
+                    exposureZonesGroup.addTo(map);
+                    schoolsGroup1k.addTo(map);
+                    document.querySelector('.exposurezone-legend').style.display = 'block';
+                    document.querySelector('.schools1k-legend').style.display = 'block';
+                } else if (currentMapType === 'spending') {
+                    countyPolySpendingGroup.addTo(map);
+                    document.querySelector('.spending-legend').style.display = 'block';
+                } else if (currentMapType === 'districts') {
+                    schoolDistGroup.addTo(map);
+                    document.querySelector('.schdist-legend').style.display = 'block';
+                } else if (currentMapType === 'boise') {
+                    idahoBndyGroup.addTo(map);
+                }
+            }
+
+            //if (isChartVisible) {
+            //    mapElement.classList.add('hidden');
+            //} else {
+            //    mapElement.classList.remove('hidden');
+            //}
+        }
+        
+
+        let ticking = false;
+        
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                //console.log('does this happen?');
+                ticking = true;
+                window.requestAnimationFrame(() => {
+                    updateView();
+                    ticking = false;
+                });
+            }
+        });
+
+        updateView();
+
+
+
+        /*  LEGEND  */
+        var legend = L.control({position: 'topright'});
+
+        legend.onAdd = function(map) {
+            this._div = L.DomUtil.create('div', 'info legend');
+            this.update();
+            return this._div;
+        };
+
+        var legendText = '<div class="map-legend"><p class="h5 text-center">LEGEND</p>';
+    
+        legendText += '<div class="schdist-legend" style="display:none"><hr />';
+        legendText += '<h6 class="text-center">% of Students within<br>1,000 ft of Tobacco Retail<br>(by School District, 2023)</h6><p class="mb-0 text-center">';
+        legendText += '<span style="opacity:0.8;background-color:#3a3e94">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#4c77b0">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#76aaca">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#a8d1e0">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#cfe9ea">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#f3d890">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#f2ab65">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#ea704a">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#d03931">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#a20e30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>';
+        legendText += '<p class="small ms-3 mb-0">0 &nbsp;10 &nbsp;20&nbsp; 30&nbsp; 40&nbsp; 50&nbsp; 60&nbsp;70&nbsp; 80&nbsp; 90&nbsp;100</p>';
+        legendText += '<p class="text-center mt-0 small">%</p></div>';
+
+        legendText += '<div class="county-legend" style="display:none"><hr />';
+        legendText += '<h6 class="text-center">Retailers per 1,000 People<br>(2024)</h6><p class="mb-0">';
+        legendText += '<span style="opacity:0.8;background-color:#3a3e94">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#4c77b0">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#76aaca">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#a8d1e0">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#cfe9ea">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#f3d890">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#f2ab65">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#ea704a">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#d03931">&nbsp;&nbsp;&nbsp; &nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#a20e30">&nbsp;&nbsp; &nbsp; &nbsp;</span><br>';
+        legendText += '<small>0 &nbsp;0.4 &nbsp;0.8 &nbsp;1.2 &nbsp;1.6 &nbsp;2.0 &nbsp;2.4 &nbsp;2.8 &nbsp;3.2 &nbsp;3.6</small>';
+        legendText += '</p></div>';
+
+        legendText += '<div class="density-legend" style="display:none"><hr />';
+        legendText += '<h6 class="text-center">Percent of Tobacco Retailers within<br>1,000 ft of another Tobacco Retailer<br>(by County)</h6><p class="mb-0 text-center">';
+        legendText += '<span style="opacity:0.8;background-color:#3a3e94">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#4c77b0">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#76aaca">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#a8d1e0">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#cfe9ea">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#f3d890">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#f2ab65">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#ea704a">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#d03931">&nbsp;&nbsp;&nbsp;&nbsp; </span>';
+        legendText += '<span style="opacity:0.8;background-color:#a20e30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>';
+        legendText += '<p class="small ms-3 mb-0">&nbsp; 0 &nbsp;10 &nbsp;20&nbsp; 30&nbsp; 40&nbsp; 50&nbsp; 60&nbsp; 70&nbsp; 80&nbsp; 90&nbsp;100</p>';
+        legendText += '<p class="text-center mt-0 small">%</p></div>';
+
+        legendText += '<div class="spending-legend" style="display:none"><hr /><h6 class="text-center">Average Household<br>Spending on<br>Smoking Products<br>in 2024</h6><p class="mb-0">';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#225ea8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $500 - $631<br>';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#41b6c4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $440 - $499<br>';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#a1dab4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $370 - $439<br>';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffcc">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $300 - $369';
+        legendText += '</p></div>';
+
+        legendText += '<div class="schools-legend mb-2" style="display:none"><div class="blue-circle"></div> School</div>';
+        legendText += '<div class="schools1k-legend mb-2" style="display:none"><div class="magenta-circle"></div> School within 1,000 ft of retail</div>';
+        legendText += '<div class="exposurezone-legend mb-2" style="display:none"><div class="grey-circle"></div> Tobacco exposure zone</div>';
+        //legendText += '<span class="fa-stack" style="font-size: 0.55rem;"><i class="fas fa-square fa-stack-2x" style="color:magenta;"></i><i class="fa fa-university fa-stack-1x fa-inverse" style="color:white;"></i></span> School within 1,000 ft<br />&nbsp;&nbsp;&nbsp; of tobacco retailer</p>';
+        //legendText += '<hr />';
+        legendText += '<div class="retailers-legend mb-0" style="display:none">';
+        //legendText += '<i class="fas fa-circle" style="color:black;opacity:0.4;border-radius:50%"></i> Tobacco Exposure Zone<br>';
+        legendText += '<div class="square"></div> Tobacco Retailer';
+        //legendText += '<span class="fa-stack" style="font-size: 0.55rem;"><i class="fas fa-circle fa-stack-2x" style="color:purple;border:1px solid white;border-radius:50%"></i><i class="fas fa-v fa-stack-1x fa-inverse" style="color:white"></i></span> Vape Retailer<br>';
+        //legendText += '<span class="fa-stack" style="font-size: 0.55rem;"><i class="fas fa-circle fa-stack-2x" style="color:red;border:1px solid white;border-radius:50%"></i><i class="fas fa-t fa-stack-1x fa-inverse" style="color:white"></i></span>';
+        //legendText += '<span class="fa-stack" style="font-size: 0.55rem;"><i class="fas fa-circle fa-stack-2x" style="color:red;border:1px solid white;border-radius:50%"></i><i class="fas fa-v fa-stack-1x fa-inverse" style="color:white"></i></span> Retailer within<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1,000 ft of school';
+        legendText += '</div>';
+        legendText += '<div class="saipe-legend" style="display:none"><hr /><h5 class="text-center">POVERTY</h5><p class="text-center">Percent of Children Age<br>5-17 Living in Poverty</p><p class="mb-0">';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#225ea8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; > 19% <br>';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#41b6c4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; 15-19% <br>';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#a1dab4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; 10-14% <br>';
+        legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffcc">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; < 10%';
+        legendText += '</p></div>';
+
+        
+        legendText += '</div>';
+        
+
+    legend.update = function () {
+        this._div.innerHTML = legendText;
+    };
+
+    legend.addTo(map);
+    </script>
+</body>
+</html>
