@@ -9,11 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.0/plotly.min.js"></script>
-    <script src='js/2023_2024_county_summaries.js'></script>
+    <script src='js/2023_2025_county_summaries.js'></script>
     <script src='js/2023_2024_schdist_summaries.js'></script>
     <script src='js/idaho_boundary_geojson.js'></script>
     <script src='js/idahoCounties.geojson.js'></script>
-    <script src='js/2024_HH_Tobacco_Spending.js'></script>
     <script src='js/sch_districts2023_geojson.js'></script>
     <script src='js/2024_schools_retail_proximity.js'></script>
     <script src='js/2024_retail_schools_proximity.js'></script>
@@ -105,11 +104,20 @@
                         indicate schools that lie within tobacco exposure zones.
                     </p>
                     <p>Notice the dense clustering of tobacco retail in central areas of Pocatello, which increases competitive pricing and creates advertising hotspots.</p>
-                    <p></p>
                     <hr />
                     <p>LEGEND:<br>
+                        <span class="blue-circle"></span> School<br>
                         <span class="magenta-circle"></span> School within 1,000 ft of tobacco retailer<br>
-                        <span class="grey-circle"></span> Tobacco exposure zone</p>
+                        <span class="grey-circle"></span> Tobacco exposure zone
+                    </p>
+                    <!--
+                    <p>EXPLANATION:</p>
+                    <p>The tobacco exposure zone is illustrated by the grey circle extending 1,000 feet around a tobacco retailer (T). 
+                        The magenta circle (S) is a school that lies within 1,000 feet of the tobacco retailer. The blue circles (S)
+                        are schools that lie outside of the exposure zone.
+                    </p>
+                    <p class="text-center"><img src="img/sch_retail_1000ft.png" class="img-fluid" style="width:220px" /></p>
+                    -->
                 </div>
             </div>
         </div>
@@ -141,8 +149,8 @@
         </div>
 
        
-        <!-- County Spending Map -->
-        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="spending">
+        <!-- County Tobacco Spending Map -->
+        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="tobaccospending">
             <div class="container">
                 <div class="story-content">
                     <h2>Household Tobacco Spending by County</h2>
@@ -151,10 +159,44 @@
                     <div class="d-flex justify-content-center">
                         <img src="img/spending_icon.png" style="width:170px" class="pe-4" />
                         <div class="stat-highlight fs-5">
-                            Spending ranges from $300 to $631 per household annually
+                            Spending ranges from $316 to $621 per household annually
                         </div>
                     </div>
-                    <small>Source: xxx</small>
+                    <small>Source: ESRI Demographics (2025)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- County Healthcare Spending Map -->
+        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="healthcare">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Healthcare Spending by County</h2>
+                    <p>The map displays average household spending on healthcare across Idaho counties. Darker shades indicate higher spending levels. Click on a county to see details.</p>
+                    <p>More...</p>
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-highlight fs-5">
+                            Average healthcare spending ranges from $4,515 to $8,742 annually
+                        </div>
+                    </div>
+                    <small>Source: ESRI Demographics (2025)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- County Median HH Income Map -->
+        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="income">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Median Income by County</h2>
+                    <p>The map displays median household income by county in Idaho. Darker shades indicate higher income levels. Click on a county to see details.</p>
+                    <p>More...</p>
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-highlight fs-5">
+                            Median household income ranges from $46,548 to $97,817 annually
+                        </div>
+                    </div>
+                    <small>Source: ESRI Demographics (2025)</small>
                 </div>
             </div>
         </div>
@@ -273,20 +315,55 @@
 
                         <div class="col-md-4">
                             <div class="stat-box text-center">
-                                <div class="value" id="retailersPer1000ByCounty">-</div>
-                                <div class="label mb-2">Retailer(s) for every 1,000 people</div>
-                                <img src="img/retail_per_1000_people.png" style="width:100%;max-width:300px" />
+                                <div class="d-none value" id="retailersPer1000ByCounty">-</div>
+                                <div class="d-none label mb-2">Retailer(s) for every 1,000 people</div>
+                                <div class="value fs-5 mb-2">Tobacco Retailer Density Relative to Population</div>
+                                <!--<img src="img/retail_per_1000_people.png" style="width:100%;max-width:300px" />-->
+                                <div class="progress mt-4" style="height: 25px;">
+                                    <div id="per1000-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <p class="small text-muted mt-3"> Retailers per 1,000 people</p>
+                                <table class="table table-sm small"><tbody>
+                                    <tr><td>low</td><td>medium</td><td>high</td></tr>
+                                    <tr><td>< 1</td><td>1 - 2</td><td>> 2</td></tr>
+                                </tbody></table>
                             </div>
                         </div>
                         
                         <div class="col-md-4">
                             <div class="stat-box text-center">
-                                <div class="value" id="avgSpending2024_byCnty">-</div>
+                                <div class="value" id="avgSpending2025_byCnty">-</div>
                                 <div class="label mb-2">Average Tobacco Spending per Household</div>
                                 <img src="img/spending_icon.png" style="width:100%;max-width:150px" />
+                                <div class="d-none progress mt-4" style="height: 25px;">
+                                    <div id="spending-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <p class="d-none small text-muted mt-1"> Avg Household Spending</p>
                             </div>
                         </div>
-                        
+
+                        <div class="col-md-4">
+                            <div class="stat-box text-center">
+                                <div class="value" id="avgHealthcare2025_byCnty">-</div>
+                                <div class="label mb-2">Average Healthcare Spending per Household</div>
+                                <!--<img src="img/spending_icon.png" style="width:100%;max-width:150px" />-->
+                                <div class="d-none progress mt-4" style="height: 25px;">
+                                    <div id="healthcare-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <p class="d-none small text-muted mt-1"> Avg Healthcare Spending per Household</p>
+                            </div>
+
+                            <div class="stat-box text-center">
+                                <div class="value" id="medIncome2025_byCnty">-</div>
+                                <div class="label mb-2">Median Household Income</div>
+                                <!--<img src="img/spending_icon.png" style="width:100%;max-width:150px" />-->
+                                <div class="d-none progress mt-4" style="height: 25px;">
+                                    <div id="income-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <p class="d-none small text-muted mt-1"> Avg Household Spending</p>
+                            </div>
+                        </div>
+ 
                         
                     </div>
                 </div>
@@ -361,7 +438,7 @@
                             <div class="stat-box text-center">
                                 <div class="value" id="retailersPer1000BySD">-</div>
                                 <div class="label mb-2">Retailer(s) for every 1,000 people</div>
-                                <img src="img/retail_per_1000_people.png" style="width:100%;max-width:300px" />
+                                <!--<img src="img/retail_per_1000_people.png" style="width:100%;max-width:300px" />-->
                             </div>
                         </div>
                         
@@ -371,7 +448,7 @@
         </div>
 
         <!-- Boise Case Study -->
-        <div class="story-section" data-lat="43.6150" data-lng="-116.2023" data-zoom="12" data-type="map" data-map-style="boise">
+        <!--<div class="story-section" data-lat="43.6150" data-lng="-116.2023" data-zoom="12" data-type="map" data-map-style="boise">
             <div class="container">
                 <div class="story-content">
                     <h2>Case Study: Boise, Idaho</h2>
@@ -382,7 +459,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
 
 
         <!-- Explore Further -->

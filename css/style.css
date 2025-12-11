@@ -30,9 +30,9 @@ body, html {
 }
 
 .blue-circle {
-    width: 10px;
-    height: 10px;
-    background-color: #67a9cf;  /*deepskyblue;*/
+    width: 11px;
+    height: 11px;
+    background-color: deepskyblue;   /*#67a9cf;*/
     border-radius: 50%; 
     display: inline-block;
 }

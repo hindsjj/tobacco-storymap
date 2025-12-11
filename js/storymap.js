@@ -24,8 +24,9 @@
     idahoBoundary.addTo(idahoBndyGroup);
     idahoBndyGroup.addTo(map); //.bringToBack();
 
-
-    // County spending on tobacco
+    /* -------------------------- */
+    /* County spending on tobacco */
+    /* -------------------------- */
     let spending;
     var countyPolySpendingGroup = new L.featureGroup();
     const countyPolysSpending = L.geoJSON(counties, {
@@ -36,24 +37,90 @@
             fillOpacity: 0.6
         },
         onEachFeature: function(feature, layer) {
-            hh_spending.forEach(function(val) {
+            //hh_spending.forEach(function(val) {
+            county_summary.forEach(function(val) {
                 if (val.GEOID === parseInt(feature.properties.GEOID)) {
-                    spending = parseFloat(val.Household_Spending_2024_Avg);
+                    //spending = parseFloat(val.Household_Spending_2024_Avg);
+                    spending = parseFloat(val.ESRI2025_AvgHHSpendingTobacco);
                 }
             });
 
             switch(true) {
-                case (spending < 370): spendingColor = '#ffffcc'; break;
-                case (spending < 440): spendingColor = '#a1dab4'; break;
-                case (spending < 500): spendingColor = '#41b6c4'; break;
+                case (spending < 390): spendingColor = '#ffffcc'; break;
+                case (spending < 470): spendingColor = '#a1dab4'; break;
+                case (spending < 550): spendingColor = '#41b6c4'; break;
                 default: spendingColor = '#225ea8'; break;
             }
 
             layer.setStyle({ fillColor: spendingColor });
-            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p class='my-1' style='font-size:16px'>Public Health District " + feature.properties.PHD + "</p><p style='font-size:16px' class='alert alert-warning'>2024 Avg Household Spending<br>on Smoking Products: <strong>$" + spending.toFixed(0) + "</strong></p>");
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>2025 Avg Household Spending<br>on Smoking Products: <strong>$" + spending.toFixed(0) + "</strong></p>");
             
         }
     }).addTo(countyPolySpendingGroup);
+
+    /* ----------------------------- */
+    /* County spending on healthcare */
+    /* ----------------------------- */
+    let healthcare;
+    var countyPolyHealthcareGroup = new L.featureGroup();
+    const countyPolysHealthcare = L.geoJSON(counties, {
+        style: {
+            color: '#555', // border color
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.6
+        },
+        onEachFeature: function(feature, layer) {
+            county_summary.forEach(function(val) {
+                if (val.GEOID === parseInt(feature.properties.GEOID)) {
+                    healthcare = parseFloat(val.ESRI2025_AvgHealthcareSpending).toFixed(0);
+                }
+            });
+
+            switch(true) {
+                case (healthcare < 6000): healthcareColor = '#fef0d9'; break;
+                case (healthcare < 7000): healthcareColor = '#fdcc8a'; break;
+                case (healthcare < 8000): healthcareColor = '#fc8d59'; break;
+                default: healthcareColor = '#d7301f'; break;
+            }
+
+            layer.setStyle({ fillColor: healthcareColor });
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>2025 Average Household<br>Spending on Healthcare: <strong>$" + healthcare + "</strong></p>");
+            
+        }
+    }).addTo(countyPolyHealthcareGroup);
+
+    /* ----------------------- */
+    /* County Median HH Income */
+    /* ----------------------- */
+    let income;
+    var countyPolyIncomeGroup = new L.featureGroup();
+    const countyPolysIncome = L.geoJSON(counties, {
+        style: {
+            color: '#555', // border color
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.6
+        },
+        onEachFeature: function(feature, layer) {
+            county_summary.forEach(function(val) {
+                if (val.GEOID === parseInt(feature.properties.GEOID)) {
+                    income = parseFloat(val.ESRI2025_MedianHH_Income).toFixed(0);
+                }
+            });
+
+            switch(true) {
+                case (income < 60000): incomeColor = '#edf8fb'; break;
+                case (income < 70000): incomeColor = '#b2e2e2'; break;
+                case (income < 80000): incomeColor = '#66c2a4'; break;
+                default: incomeColor = '#238b45'; break;
+            }
+
+            layer.setStyle({ fillColor: incomeColor });
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>2025 Median Household<br>Income: <strong>$" + income + "</strong></p>");
+            
+        }
+    }).addTo(countyPolyIncomeGroup);
 
     
     const schoolDistGroup = new L.featureGroup();
@@ -241,9 +308,9 @@
         
         var schoolCircleIcon = L.circleMarker( [lat,lng], {
             pane: 'schoolMarkerPane',
-            color: '#67a9cf', //'deepskyblue',        // Color of the stroke (outline)
-            weight: 0,       
-            fillColor: '#67a9cf', //'deepskyblue',   // Color of the fill
+            color: '#ffffff', //'#67a9cf', //'deepskyblue',        // Color of the stroke (outline)
+            weight: 1,       
+            fillColor: 'deepskyblue', //'#67a9cf',   // Color of the fill
             fillOpacity: 0.7,    // Opacity of the fill
             radius: 6
             //radius: radiusInMeters // The radius in meters
@@ -257,8 +324,8 @@
         if (risk === 'yes') {
             var schoolCircleIcon1k = L.circleMarker( [lat,lng], {
                 pane: 'schoolMarkerPane',
-                color: 'magenta',       // Color of the stroke (outline)
-                weight: 0,       
+                color: '#ffffff', //'magenta',       // Color of the stroke (outline)
+                weight: 1,       
                 fillColor: 'magenta',   // Color of the fill
                 fillOpacity: 1,    // Opacity of the fill
                 radius: 6
@@ -380,9 +447,14 @@
 
         if (countyData) {
             let population = countyData.Census_Pop2024;
+            //let population = countyData.ESRI_Pop2025;
             let totRetail = countyData.TotalRetailers2024;
             let retail500ftRetail = countyData.Retail_in500ft_of_Retail_2024;
             let retail1000ftRetail = countyData.Retail_in1000ft_of_Retail_2024;
+            let spendingCounty = countyData.ESRI2025_AvgHHSpendingTobacco;
+            let spendingBar = spendingCounty/10;
+            let medianIncome = countyData.ESRI2025_MedianHH_Income;
+            let healthcareSpending = countyData.ESRI2025_AvgHealthcareSpending;
             
             let pctRetail500ftRetail = 0;
             if (retail500ftRetail > 0) pctRetail500ftRetail =  (retail500ftRetail/totRetail * 100).toFixed(1);
@@ -396,6 +468,16 @@
             //if (retail1000ftRetail > 0) pctRetail1000ftRetail = (retail1000ftRetail/totRetail * 100).toFixed(1);
             
             let retailPer1kPeople = totRetail/population * 1000;
+            let level = "";
+            let bgColor = "";
+            let txtColor = "";
+            if (retailPer1kPeople < 1 ) {
+                level = "low"; bgColor = "bg-success"; txtColor = "text-light";
+            } else if (retailPer1kPeople > 1.001 && retailPer1kPeople < 2.001) {
+                level = "medium"; bgColor = "bg-warning"; txtColor = "text-dark";
+            } else if (retailPer1kPeople > 2 ) {
+                level = "high"; bgColor = "bg-danger"; txtColor = "text-light";
+            } 
             
             let totSchools = countyData.TotalSchools2023;
             let schools1kRetail = countyData.Schools_in1000ft_of_Retail;
@@ -421,7 +503,8 @@
             //let pctRetail1kSch = 0;
             //if (retail1kSch > 0) pctRetail1kSch = (retail1kSch/totRetail * 100).toFixed(1);
             
-            let spending = countyData.AvgHouseholdSpending2024; 
+            let per1000people = retailPer1kPeople; 
+            let per1000peopleBar = retailPer1kPeople * 25;
             
             const retailBarCounty = document.getElementById('retail-bar-county');
             retailBarCounty.style.width = pctRetail500ftRetail + "%";
@@ -435,19 +518,35 @@
             studentsBarCounty.style.width = pctStudents1k + "%";
             studentsBarCounty.innerText = pctStudents1k + "%";
 
+            const spendingBarCounty = document.getElementById('spending-bar-county');
+            spendingBarCounty.style.width = spendingBar * 1.58 + "%";
+            spendingBarCounty.innerText = "$" + spendingCounty.toFixed(0).toString();
+
+            const per1000BarCounty = document.getElementById('per1000-bar-county');
+            per1000BarCounty.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'text-light', 'text-dark');
+            per1000BarCounty.classList.add(bgColor, txtColor);
+            //console.log(per1000peopleBar + ',' + per1000people);
+            per1000BarCounty.style.width = per1000peopleBar + "%";
+            //per1000BarCounty.innerText = per1000people.toFixed(2);
+            per1000BarCounty.innerText = level;
+
             // Populate divs with the data
             document.getElementById('totRetailByCounty').textContent = totRetail.toLocaleString();
             document.getElementById('totSchoolsByCounty').textContent = totSchools.toLocaleString();
             document.getElementById('totStudentsByCounty').textContent = totStudents.toLocaleString();
             document.getElementById('retailersPer1000ByCounty').textContent = retailPer1kPeople.toFixed(2);
-            document.getElementById('avgSpending2024_byCnty').textContent = '$' + spending.toFixed(0);
+            document.getElementById('avgSpending2025_byCnty').textContent = '$' + spendingCounty.toFixed(0);
+            document.getElementById('avgHealthcare2025_byCnty').textContent = '$' + (healthcareSpending.toFixed(0)).toLocaleString();
+            document.getElementById('medIncome2025_byCnty').textContent = '$' + (medianIncome.toFixed(0)).toLocaleString();
         } else {
             countyStatsElem.style.display = 'none';
             document.getElementById('totRetailByCounty').textContent = '';
             document.getElementById('totSchoolsByCounty').textContent = '';
             document.getElementById('totStudentsByCounty').textContent = '';
             document.getElementById('retailersPer1000ByCounty').textContent = '';
-            document.getElementById('avgSpending2024_byCnty').textContent = '';
+            document.getElementById('avgSpending2025_byCnty').textContent = '';
+            document.getElementById('avgHealthcare2025_byCnty').textContent = '';
+            document.getElementById('medIncome2025_byCnty').textContent = '';
         }
     }
 
@@ -591,8 +690,6 @@
     }
 
 
-
-
     /* ----------------------- */
     /* HANDLE SCROLLING EVENTS */
     /* ----------------------- */
@@ -660,14 +757,25 @@
             }
             if (map.hasLayer(schoolsGroup1k)) {
                 map.removeLayer(idahoBndyGroup);
+                map.removeLayer(schoolsGroup);
                 map.removeLayer(schoolsGroup1k);
                 map.removeLayer(exposureZonesGroup);
                 document.querySelector('.schools1k-legend').style.display = 'none';
+                document.querySelector('.schools-legend').style.display = 'none';
                 document.querySelector('.exposurezone-legend').style.display = 'none';
+                document.querySelector('.sch-retail-1000ft-legend').style.display = 'none'; 
             }
             if (map.hasLayer(countyPolySpendingGroup)) {
                 map.removeLayer(countyPolySpendingGroup);
                 document.querySelector('.spending-legend').style.display = 'none';
+            }
+            if (map.hasLayer(countyPolyHealthcareGroup)) {
+                map.removeLayer(countyPolyHealthcareGroup);
+                document.querySelector('.healthcare-legend').style.display = 'none';
+            }
+            if (map.hasLayer(countyPolyIncomeGroup)) {
+                map.removeLayer(countyPolyIncomeGroup);
+                document.querySelector('.income-legend').style.display = 'none';
             }
             if (map.hasLayer(schoolDistGroup)) {
                 map.removeLayer(schoolDistGroup);
@@ -684,12 +792,21 @@
             } else if (currentMapType === 'proximity') {
                 idahoBndyGroup.addTo(map);
                 exposureZonesGroup.addTo(map);
+                schoolsGroup.addTo(map);
                 schoolsGroup1k.addTo(map);
                 document.querySelector('.exposurezone-legend').style.display = 'block';
                 document.querySelector('.schools1k-legend').style.display = 'block';
-            } else if (currentMapType === 'spending') {
+                document.querySelector('.schools-legend').style.display = 'block';
+                document.querySelector('.sch-retail-1000ft-legend').style.display = 'block'; 
+            } else if (currentMapType === 'tobaccospending') {
                 countyPolySpendingGroup.addTo(map);
                 document.querySelector('.spending-legend').style.display = 'block';
+            } else if (currentMapType === 'healthcare') {
+                countyPolyHealthcareGroup.addTo(map);
+                document.querySelector('.healthcare-legend').style.display = 'block';
+            } else if (currentMapType === 'income') {
+                countyPolyIncomeGroup.addTo(map);
+                document.querySelector('.income-legend').style.display = 'block';
             } else if (currentMapType === 'districts') {
                 schoolDistGroup.addTo(map);
                 document.querySelector('.schdist-legend').style.display = 'block';
@@ -780,16 +897,32 @@
     legendText += '<p class="small ms-3 mb-0">&nbsp; 0 &nbsp;10 &nbsp;20&nbsp; 30&nbsp; 40&nbsp; 50&nbsp; 60&nbsp; 70&nbsp; 80&nbsp; 90&nbsp;100</p>';
     legendText += '<p class="text-center mt-0 small">%</p></div>';
 
-    legendText += '<div class="spending-legend" style="display:none"><hr /><h6 class="text-center">Average Household<br>Spending on<br>Smoking Products<br>in 2024</h6><p class="mb-0">';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#225ea8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $500 - $631<br>';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#41b6c4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $440 - $499<br>';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#a1dab4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $370 - $439<br>';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffcc">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $300 - $369';
+    legendText += '<div class="spending-legend" style="display:none"><hr /><h6 class="text-center">Average Household<br>Spending on<br>Smoking Products<br>in 2025</h6><p class="mb-0">';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#225ea8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $550 - $630<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#41b6c4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $470 - $549<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#a1dab4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $390 - $469<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffcc">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $310 - $389';
     legendText += '</p></div>';
+
+    legendText += '<div class="healthcare-legend" style="display:none"><hr /><h6 class="text-center">Average Household<br>Healthcare Spending<br>in 2025</h6><p class="mb-0">';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#d7301f">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $8,000 - $8,999<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fc8d59">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $7,000 - $7,999<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fdcc8a">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $6,000 - $6,999<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fef0d9">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $4,500 - $5,999';
+    legendText += '</p></div>';
+
+    legendText += '<div class="income-legend" style="display:none"><hr /><h6 class="text-center">Median Household<br>Income in 2025</h6><p class="mb-0">';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#238b45">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $80,000 - $100,000<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#66c2a4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $70,000 - $79,999<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#b2e2e2">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $60,000 - $69,999<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#edf8fb">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $46,000 - $59,999';
+    legendText += '</p></div>';
+
 
     legendText += '<div class="schools-legend mb-2" style="display:none"><div class="blue-circle"></div> School</div>';
     legendText += '<div class="schools1k-legend mb-2" style="display:none"><div class="magenta-circle"></div> School within 1,000 ft of retail</div>';
     legendText += '<div class="exposurezone-legend mb-2" style="display:none"><div class="grey-circle"></div> Tobacco exposure zone</div>';
+    legendText += '<div class="sch-retail-1000ft-legend mb-2" style="display:none"><hr /><img src="img/sch_retail_1000ft.png" style="width:230px" /></div>';
     //legendText += '<span class="fa-stack" style="font-size: 0.55rem;"><i class="fas fa-square fa-stack-2x" style="color:magenta;"></i><i class="fa fa-university fa-stack-1x fa-inverse" style="color:white;"></i></span> School within 1,000 ft<br />&nbsp;&nbsp;&nbsp; of tobacco retailer</p>';
     //legendText += '<hr />';
     legendText += '<div class="retailers-legend mb-0" style="display:none">';
