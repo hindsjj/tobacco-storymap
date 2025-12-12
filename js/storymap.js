@@ -618,8 +618,8 @@ const idahoAvgSmokeSpending = 444.07;
         );
 
         if (countyData) {
-            let population = countyData.Census_Pop2024;
-            //let population = countyData.ESRI_Pop2025;
+            //let population = countyData.Census_Pop2024;
+            let population = countyData.ESRI_Pop2025;
             let totRetail = countyData.TotalRetailers2024;
             let retail500ftRetail = countyData.Retail_in500ft_of_Retail_2024;
             let retail1000ftRetail = countyData.Retail_in1000ft_of_Retail_2024;
