@@ -14,19 +14,21 @@
     <script src='js/idaho_boundary_geojson.js'></script>
     <script src='js/idahoCounties.geojson.js'></script>
     <script src='js/sch_districts2023_geojson.js'></script>
+    <script src='js/FIPS_12digit_idaho_geojson.js'></script>
     <script src='js/2024_schools_retail_proximity.js'></script>
     <script src='js/2024_retail_schools_proximity.js'></script>
     <script src='js/2024_schools_json.js'></script>
     <script src='js/2023_schools_enrollments_districts_new_json.js'></script> <!-- const schools2023 -->
     <script src='js/2023_district_pct_students1000ft_json.js'></script>  <!-- const districtEnrollmentsWithin1k -->
     <script src='js/combined_pop_retail_proximity2024_json.js'></script>  <!-- const county_retailStats -->
+    <script src='js/2023_adi_disparity_ranking.js'></script>
     
 </head>
 <body>
     <div id="intro">
         <div class="content">
-            <h1>Idaho Youth Tobacco Exposure Study</h1>
-            <p>Understanding the vulnerability of K-12 students to tobacco retail and advertising across Idaho</p>
+            <h1>Idaho's Tobacco Retail Environment: Measuring Youth Exposure</h1>
+            <!--<p>Understanding the vulnerability of K-12 students to tobacco retail and advertising across Idaho</p>-->
             <div class="scroll-indicator">
                 <div class="arrow-down"></div>
             </div>
@@ -39,7 +41,7 @@
         <div class="spacer"></div>
         
         <!-- Idaho State Overview -->
-        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="idaho">
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="idaho">
             <div class="container">
                 <div class="story-content">
                     <h2>The State of Idaho</h2>
@@ -82,11 +84,11 @@
                 <div class="row text-center mt-5">
                     <div class="col-md-6">
                         <div id="schoolsChart"></div>
-                        <p class="mt-3">As of 2023, 90% of schools in Idaho are public schools.</p>
+                        <p class="mt-1 mb-5">As of 2023, 90% of schools in Idaho are public schools.</p>
                     </div>
                     <div class="col-md-6">
                         <div id="retailersChart"></div>
-                        <p class="mt-3">Convenience stores and gas stations make up the vast majority of tobacco retail, creating high accessibility.</p>
+                        <p class="mt-1">Convenience stores and gas stations make up the vast majority of tobacco retail, creating high accessibility.</p>
                     </div>
                 </div>
             </div>
@@ -127,37 +129,95 @@
             <div class="chart-container">
                 <h2>Proximity to Schools</h2>
                 <p class="text-center">The proximity of tobacco retailers to schools is a critical factor in youth exposure.</p> 
-                <div class="d-flex justify-content-center mb-5">
-                    <img src="img/sch-retail-1000ft.png" style="max-width:500px;width:100%" class="mx-auto img-fluid" />
-                    <div class="alert alert-brown mx-4">
-                        <h1 class="display-4 text-center">19.6%</h1>
-                        <p class="text-center mb-0">of schools in Idaho are within <span class="fs-5" style="color:lemonchiffon"><strong>1,000 feet</strong></span> of at least one tobacco retailer</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-7 col-sm-12">
+                        <img src="img/sch-retail-1000ft.png" class="mb-4 mx-auto img-fluid" />
+                    </div>
+                    <div class="col-md-5 col-sm-12">
+                        <div class="alert alert-brown mx-4">
+                            <h1 class="display-4 text-center">19.6%</h1>
+                            <p class="text-center mb-0">of schools in Idaho are within <span class="fs-5" style="color:lemonchiffon"><strong>1,000 feet</strong></span> of at least one tobacco retailer</p>
+                        </div>
                     </div>
                 </div>
                 <hr />
                 <h2 class="mt-5">Retail Clustering</h2>
                 <p class="text-center">Clustering of multiple retailers increases competitive pricing and marketing intensity.</p>
                 
-                <div class="d-flex justify-content-center">
-                    <div class="alert alert-brown mx-4 mt-2">
-                        <h1 class="display-4 text-center">40.4%</h1>
-                        <p class="text-center mb-0">of tobacco retailers are within <span class="fs-5" style="color:lemonchiffon"><strong>500 feet</strong></span> of another retailer</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-5 col-sm-12">
+                        <div class="alert alert-brown mx-4 mt-2">
+                            <h1 class="display-4 text-center">40.4%</h1>
+                            <p class="text-center mb-0">of tobacco retailers are within <span class="fs-5" style="color:lemonchiffon"><strong>500 feet</strong></span> of another retailer</p>
+                        </div>
                     </div>
-                    <img src="img/r2r_500ft.png" style="max-width:500px;width:100%" class="img-fluid" />
+                    <div class="col-md-7 col-sm-12">
+                        <img src="img/r2r_500ft.png" class="mb-4 mx-auto img-fluid" />
+                    </div>
                 </div>
             </div>
         </div>
 
-       
+
+        <!-- School Districts Map: % Students within 1,000 ft retail -->
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="districts">
+            <div class="container">
+                <div class="story-content">
+                    <h2>School Districts: Student Exposure to Retail</h2>
+                    <p>Idaho's public school districts vary dramatically in size, student population, and geographic setting. This map shows district boundaries across the state.</p>
+                    <p>Warmer colors on the map indicate higher percentages of students exposed to tobacco retail within the county. These are typically rural areas, with fewer schools and lower populations.</p>
+                    <p>Analyzing exposure at the district level helps identify which educational communities face the greatest challenges from nearby tobacco retail.</p>
+                    <p>Click on a district to see details.</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- School Districts Map: Ratio of Retail to 1,000 people -->
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="ratioDistrict">
+            <div class="container">
+                <div class="story-content">
+                    <h2>School District Tobacco Retail Density</h2>
+                    <p>The public health field frequently uses <strong>1 retailer per 1,000 people</strong> 
+                        as a key benchmark, often setting it as a maximum cap for licensing new tobacco 
+                        retailers. Areas with densities over 2 or 3 retailers per 1,000 people are often cited as 
+                        examples of "tobacco swamps" or areas with extreme retailer concentration.
+                    </p>
+                    <p>On the map, purple indicates relatively low retail density, while 
+                        orange indicates statistically high retail density. 
+                        Yellow indicates moderate density.</p>
+                    <p>Click on a county to see details.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- County Map: Ratio of Retail to 1,000 people -->
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="ratioCounty">
+            <div class="container">
+                <div class="story-content">
+                    <h2>County-Level Tobacco Retail Density</h2>
+                    <p>The public health field frequently uses <strong>1 retailer per 1,000 people</strong> 
+                        as a key benchmark, often setting it as a maximum cap for licensing new tobacco 
+                        retailers. Areas with densities over 2 or 3 retailers per 1,000 people are often cited as 
+                        examples of "tobacco swamps" or areas with extreme retailer concentration.
+                    </p>
+                    <p>On the map, purple indicates relatively low retail density, while 
+                        orange indicates statistically high retail density. 
+                        Yellow indicates moderate density.</p>
+                    <p>Click on a county to see details.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- County Tobacco Spending Map -->
-        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="tobaccospending">
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="tobaccospending">
             <div class="container">
                 <div class="story-content">
                     <h2>Household Tobacco Spending by County</h2>
                     <p>The map displays average annual household spending on tobacco products across Idaho counties. Darker shades indicate higher spending levels. Click on a county to see details.</p>
                     <p>This metric reveals geographic patterns in tobacco consumption and helps identify communities where youth may face higher exposure to tobacco use in their households and neighborhoods.</p>
                     <div class="d-flex justify-content-center">
-                        <img src="img/spending_icon.png" style="width:170px" class="pe-4" />
+                        <img src="img/spending_icon.png" style="width:160px;height:170px" class="pe-4" />
                         <div class="stat-highlight fs-5">
                             Spending ranges from $316 to $621 per household annually
                         </div>
@@ -165,9 +225,52 @@
                     <small>Source: ESRI Demographics (2025)</small>
                 </div>
             </div>
+        </div> 
+
+        <!-- County Median HH Income Map -->
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="income">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Median Income by County</h2>
+                    <p>The map displays median household income by county in Idaho. Darker shades indicate higher income levels. Click on a county to see details.</p>
+                    <p>More...</p>
+                    <div class="d-flex justify-content-center">
+                        <p><img src="img/income_icon.png" style="width:160px" class="pe-4" /></p>
+                        <div class="stat-highlight fs-5">
+                            Median household income ranges from $46,548 to $97,817 annually
+                        </div> 
+                    </div>
+                    <small>Source: ESRI Demographics (2025)</small>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Area Deprivation Map -->
+        <div class="story-section" data-lat="43.6150" data-lng="-116.8023" data-zoom="10" data-type="map" data-map-style="adi">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Area Deprivation Index (ADI)</h2>
+                    <p>The Area Deprivation Index (ADI) is a scientifically validated measure of the adverse social exposome 
+                        (i.e., neighborhood disadvantage) that can be used to evaluate and improve factors that impact health 
+                        across populations.
+                    </p> 
+                    <p>
+                        The map displays ADI for Idaho (at the census block level), using state-only deciles. 
+                        Warmer colors indicate more disadvantaged areas, 
+                        while cooler colors indicate less disadvantaged areas. 
+                        Grey-to-black circles represent tobacco exposure zones. 
+                    </p>
+                    <small>Source: 
+                        <a href="https://www.neighborhoodatlas.medicine.wisc.edu/" target="_blank" alt="Neighborhood Atlas, Area Deprivation Index">Neighborhood Atlas</a> 
+                        (2023), downloaded Nov 5, 2025
+                    </small>
+                </div>
+            </div>
         </div>
 
         <!-- County Healthcare Spending Map -->
+        <!--
         <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="healthcare">
             <div class="container">
                 <div class="story-content">
@@ -183,23 +286,9 @@
                 </div>
             </div>
         </div>
+        -->
 
-        <!-- County Median HH Income Map -->
-        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="income">
-            <div class="container">
-                <div class="story-content">
-                    <h2>Median Income by County</h2>
-                    <p>The map displays median household income by county in Idaho. Darker shades indicate higher income levels. Click on a county to see details.</p>
-                    <p>More...</p>
-                    <div class="d-flex justify-content-center">
-                        <div class="stat-highlight fs-5">
-                            Median household income ranges from $46,548 to $97,817 annually
-                        </div>
-                    </div>
-                    <small>Source: ESRI Demographics (2025)</small>
-                </div>
-            </div>
-        </div>
+
 
         <!-- County Statistics -->
         <div class="chart-section" data-type="chart">
@@ -263,10 +352,16 @@
                                 <div class="value" id="totRetailByCounty">-</div>
                                 <div class="label mb-2">Tobacco Retailers</div>
                                 <img src="img/tobacco_retailer_icon.png" style="width:100%;max-width:180px" />
+                                <div class="alert alert-brown mx-2 mt-4 text-start">
+                                    <div class="d-inline h3" id="retail-bar-county"></div>
+                                    <p class="d-inline"> of retailers are <span class="fs-6 fw-bold">within 500 ft</span> of another retailer</p>
+                                </div>
+                                <!--
                                 <div class="progress mt-4" style="height: 25px;">
                                     <div id="retail-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
                                 <p class="small text-muted mt-1"><span id="statZero-r2r500-county" class="fw-bold fs-5"></span> Percent of retailers within 500 feet of another retailer</p>
+                                -->
                             </div>
                             
                             <!--<div class="stat-box text-center">
@@ -282,11 +377,18 @@
                                 <div class="value" id="totSchoolsByCounty">-</div>
                                 <div class="label mb-2">Total Schools</div>
                                 <img src="img/school_icon.png" style="width:100%;max-width:180px" />
-                                <div class="progress mt-4" style="height: 25px;">
+                                <div class="alert alert-brown mx-2 mt-4 text-start">
+                                    <div class="d-inline h3" id="schools-bar-county"></div>
+                                    <p class="d-inline"> of schools are <span class="fs-6 fw-bold">within 1,000 ft</span> of at least one tobacco retailer</p>
+                                </div>
+                                
+                                <!--<div class="progress mt-4" style="height: 25px;">
                                     <div id="schools-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
                                 <p class="small text-muted mt-1"><span id="statZero-schoolsNear-county" class="fw-bold fs-5"></span> Percent of schools near retail</p>
+                                -->
                             </div>
+
                             <!--<div class="stat-box text-center">
                                 <div class="value" id="pctSchoolsByCounty1k">-</div>
                                 <div class="label">Schools Near Retailers</div>
@@ -300,10 +402,16 @@
                                 <div class="value" id="totStudentsByCounty">-</div>
                                 <div class="label mb-2">Total Students</div>
                                 <img src="img/students_icon.png" style="width:100%;max-width:180px" />
-                                <div class="progress mt-4" style="height: 25px;">
+                                <div class="alert alert-brown mx-2 mt-4 text-start">
+                                    <div class="d-inline h3" id="students-bar-county"></div>
+                                    <p class="d-inline"> of students are <span class="fs-6 fw-bold">within 1,000 ft</span> of at least one tobacco retailer</p>
+                                </div>
+                                
+                                <!--<div class="progress mt-4" style="height: 25px;">
                                     <div id="students-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
                                 <p class="small text-muted mt-1"><span id="statZero-studentsNear-county" class="fw-bold fs-5"></span> Percent of students near retail</p>
+                                -->
                             </div>
                             <!--<div class="stat-box text-center">
                                 <div class="value" id="pctStudentsByCounty1k">-</div>
@@ -324,8 +432,8 @@
                                 </div>
                                 <p class="small text-muted mt-3"> Retailers per 1,000 people</p>
                                 <table class="table table-sm small"><tbody>
-                                    <tr><td>low</td><td>medium</td><td>high</td></tr>
-                                    <tr><td>< 1</td><td>1 - 2</td><td>> 2</td></tr>
+                                    <tr><td>low</td><td>moderate</td><td>high</td></tr>
+                                    <tr><td>< 1</td><td>1 - 1.5</td><td>> 1.5</td></tr>
                                 </tbody></table>
                             </div>
                         </div>
@@ -341,22 +449,22 @@
                                 <p class="d-none small text-muted mt-1"> Avg Household Spending</p>
                             </div>
                         </div>
-
+                        
                         <div class="col-md-4">
-                            <div class="stat-box text-center">
+                            <!--<div class="stat-box text-center">
                                 <div class="value" id="avgHealthcare2025_byCnty">-</div>
                                 <div class="label mb-2">Average Healthcare Spending per Household</div>
-                                <!--<img src="img/spending_icon.png" style="width:100%;max-width:150px" />-->
+                                <img src="img/spending_icon.png" style="width:100%;max-width:150px" />
                                 <div class="d-none progress mt-4" style="height: 25px;">
                                     <div id="healthcare-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
                                 <p class="d-none small text-muted mt-1"> Avg Healthcare Spending per Household</p>
-                            </div>
+                            </div>-->
 
                             <div class="stat-box text-center">
                                 <div class="value" id="medIncome2025_byCnty">-</div>
                                 <div class="label mb-2">Median Household Income</div>
-                                <!--<img src="img/spending_icon.png" style="width:100%;max-width:150px" />-->
+                                <img src="img/income_icon.png" style="width:100%;max-width:150px" />
                                 <div class="d-none progress mt-4" style="height: 25px;">
                                     <div id="income-bar-county" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
@@ -366,19 +474,6 @@
  
                         
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- School Districts Map -->
-        <div class="story-section" data-lat="44.0682" data-lng="-114.7420" data-zoom="6" data-type="map" data-map-style="districts">
-            <div class="container">
-                <div class="story-content">
-                    <h2>School District Boundaries</h2>
-                    <p>Idaho's public school districts vary dramatically in size, student population, and geographic setting. This map shows district boundaries across the state.</p>
-                    <p>Warmer colors on the map indicate higher percentages of students exposed to tobacco retail within the county. These are typically rural areas, with fewer schools and lower populations.</p>
-                    <p>Analyzing exposure at the district level helps identify which educational communities face the greatest challenges from nearby tobacco retail.</p>
-                    <p>Click on a district to see details.</p>
                 </div>
             </div>
         </div>

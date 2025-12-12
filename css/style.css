@@ -99,6 +99,10 @@ body, html {
 .circle-v-purple { background-color: purple; }
 .circle-red { background-color: crimson; } 
 
+.story-section .container {
+    padding-left: 0 !important;
+    margin-left: 40px !important;
+}
 
 .story-container {
     position: relative;
@@ -157,6 +161,19 @@ body, html {
     max-width: 500px;
     pointer-events: auto;
     transition: opacity 0.5s ease, transform 0.5s ease;
+}
+@media screen and (min-width: 731px) and (max-width: 950px) {
+    .story-content {
+      padding: 20px;
+      max-width: 400px;
+    }
+}
+
+@media screen and (min-width: 480px) and (max-width: 730px) {
+    .story-content {
+      padding: 20px;
+      max-width: 300px;
+    }
 }
 
 .story-content.fade-out {
@@ -293,7 +310,8 @@ body, html {
     border-radius: 10px;
 }
 .alert-brown p { color: #fff; }
-.alert-brown h1 { color: lemonchiffon; }
+.alert-brown h1, .alert-brown div, .alert-brown span  { color: lemonchiffon; }
+
 
 .progress {
     background-color: #fff;

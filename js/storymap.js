@@ -1,3 +1,7 @@
+// ESRI 2025
+const idahoPopulation = 2025102;
+const idahoMedianHHIncome = 78857;
+const idahoAvgSmokeSpending = 444.07;
 
     let map = L.map('map', {
         zoomControl: true,
@@ -105,7 +109,7 @@
         onEachFeature: function(feature, layer) {
             county_summary.forEach(function(val) {
                 if (val.GEOID === parseInt(feature.properties.GEOID)) {
-                    income = parseFloat(val.ESRI2025_MedianHH_Income).toFixed(0);
+                    income = parseInt(val.ESRI2025_MedianHH_Income);
                 }
             });
 
@@ -117,12 +121,80 @@
             }
 
             layer.setStyle({ fillColor: incomeColor });
-            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>2025 Median Household<br>Income: <strong>$" + income + "</strong></p>");
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>2025 Median Household<br>Income: <strong>$" + income.toLocaleString() + "</strong></p>");
             
         }
     }).addTo(countyPolyIncomeGroup);
 
-    
+
+    /* -------------------------- */
+    /* County RATIO retail:people */
+    /* -------------------------- */
+    let countyRetailRatio;
+    var countyRetailRatioGroup = new L.featureGroup();
+    const countyPolysRatio = L.geoJSON(counties, {
+        style: {
+            color: '#555', // border color
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.6
+        },
+        onEachFeature: function(feature, layer) {
+            county_summary.forEach(function(val) {
+                if (val.GEOID === parseInt(feature.properties.GEOID)) {
+                    countyRetailRatio = parseInt(val.TotalRetailers2024) / parseInt(val.ESRI_Pop2024) * 1000;
+                }
+            });
+
+            switch(true) {
+                case (countyRetailRatio < 1): countyRetailRatioColor = '#998ec3'; break;
+                case (countyRetailRatio < 1.5): countyRetailRatioColor = '#ffffbf'; break;
+                default: countyRetailRatioColor = '#f1a340'; break;
+            }
+
+            layer.setStyle({ fillColor: countyRetailRatioColor });
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>Number of tobacco retailers per 1,000 people: <strong>" + countyRetailRatio.toFixed(2) + "</strong></p>");
+            
+        }
+    }).addTo(countyRetailRatioGroup);
+
+
+    /* ---------------------------- */
+    /* District RATIO retail:people */
+    /* ---------------------------- */
+    let districtRetailRatio;
+    var districtRetailRatioGroup = new L.featureGroup();
+    const districtPolysRatio = L.geoJSON(sch_districts, {
+        style: {
+            color: '#555', // border color
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.6
+        },
+        onEachFeature: function(feature, layer) {
+            schdist_summary.forEach(function(val) {
+                if (val.SchoolDistrictLong === feature.properties.NAME) {
+                    districtRetailRatio = parseInt(val.TotalRetailers2024) / parseInt(val.SAIPE23_TotalPopulation2023) * 1000;
+                }
+            });
+
+            switch(true) {
+                case (districtRetailRatio < 1): districtRetailRatioColor = '#998ec3'; break;
+                case (districtRetailRatio < 1.5): districtRetailRatioColor = '#ffffbf'; break;
+                default: districtRetailRatioColor = '#f1a340'; break;
+            }
+
+            layer.setStyle({ fillColor: districtRetailRatioColor });
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " District</h5><p style='font-size:16px' class='alert alert-warning'>Number of tobacco retailers per 1,000 people: <strong>" + districtRetailRatio.toFixed(2) + "</strong></p>");
+            
+        }
+    }).addTo(districtRetailRatioGroup);
+
+
+    /* -------------------------- */
+    /*  School Districts          */
+    /*  Students within 1,000 ft  */
+    /* -------------------------- */
     const schoolDistGroup = new L.featureGroup();
     async function loadSchDistricts() {
         try {
@@ -152,7 +224,7 @@
                                 '#3a3e94';   
             }
             
-            // Style function for ADI polygons
+            // Style function for polygons
             function styleStudentsExposed(feature) {
                 const matchedData = schDistLookup[feature.properties.NAME];
                 const pct = matchedData ? matchedData.PctWithin1000ft : null;
@@ -203,9 +275,96 @@
     loadSchDistricts();
 
 
-    // -------------- //
-    // Load Retailers //
-    // -------------- //
+    /* --------------------------- */
+    /* ADI: Area Deprivation Index */
+    /* --------------------------- */
+    const adi2023Group = L.featureGroup();
+
+    async function loadADI() {
+        try {
+            // Create lookup map using FIPS as key
+            const adiLookup = {};
+            adi2023.forEach(item => {
+                adiLookup[item.FIPS] = {
+                    ADI_NATRANK: item.ADI_NATRANK,
+                    ADI_STATERNK: item.ADI_STATERNK
+                };
+            });
+    
+            // Style function for ADI polygons
+            function styleADI(feature) {
+                const matchedData = adiLookup[feature.properties.GEOID];
+                const rank = matchedData ? matchedData.ADI_STATERNK : null;
+
+                return {
+                    fillColor: getADIColor(rank),
+                    weight: 1,
+                    opacity: 1,
+                    color: '#555', //getADIColor(rank),
+                    fillOpacity: 0.7
+                };
+            }
+
+            // Define color scale for ADI_STATERNK (0-10 range)
+            function getADIColor(rank) {
+                if (rank === undefined || rank === null || rank === "GQ" || rank === "PH" || rank === "GQ-PH") return '#CCCCCC'; // Gray for missing data
+
+                return  rank > 9  ? '#a20e30' :  // Darkest red
+                        rank > 8  ? '#d03931' :
+                        rank > 7  ? '#ea704a' :
+                        rank > 6  ? '#f2ab65' :
+                        rank > 5  ? '#f3d890' :
+                        rank > 4  ? '#cfe9ea' :
+                        rank > 3  ? '#a8d1e0' :
+                        rank > 2  ? '#76aaca' :
+                        rank > 1  ? '#4c77b0' :
+                                    '#3a3e94';
+            }
+
+            // Add GeoJSON layer to the feature group
+            L.geoJSON(fips12_polys, {
+                style: styleADI,
+                onEachFeature: function(feature, layer) {
+                    const matchedData = adiLookup[feature.properties.GEOID];
+                    if (matchedData) {
+                        const rank = matchedData.ADI_STATERNK;
+                        const natRank = matchedData.ADI_NATRANK;
+                        if (rank === "GQ" || rank === "PH" || rank === "GQ-PH") {
+                            layer.bindPopup(
+                                `<div class="h5">Area Deprivation Index</div>` +
+                                `<div class="fs-6">Suppressed due to low population and/or housing.</div>` +
+                                `<div class="mt-2">Census block level, FIPS: ${feature.properties.GEOID}</div>`
+                            );
+                        } else {
+                            layer.bindPopup(
+                                `<div class="h5">Area Deprivation Index</div>` +
+                                //`<div class="fs-6 alert alert-warning"><strong>State Decile:</strong> ${rank}<br>` +
+                                `<div class="fs-6 alert alert-warning">ADI within Idaho: <strong>${rank}</strong> out of 10</div>` +
+                                //`<strong>National Percentile:</strong> ${natRank}</div>` +
+                                `<div class="mt-2">Higher values indicate more disadvantaged<br />Census block level, FIPS: ${feature.properties.GEOID}</div>`
+                            );
+                        }
+                    } else {
+                        layer.bindPopup(
+                            `<div class="h5">Area Deprivation Index</div>` +
+                            `<div class="fs-6">No ADI data</div>` +
+                            `<div class="mt-2">Census block level, FIPS: ${feature.properties.GEOID}</div>`
+                        );
+                    }
+                }
+            }).addTo(adi2023Group);
+        
+        } catch (error) {
+            console.error('Error loading ADI disparities:', error);
+        }
+    }
+    
+    loadADI();
+
+
+    /* -------------- */
+    /* Load Retailers */
+    /* -------------- */
     var nonVapeCircleIcon = L.divIcon({
         html: '<span class="circle-letter-icon circle-t-orange">T</span>',
         iconSize: [10, 10], // Match the width and height from CSS
@@ -280,6 +439,7 @@
             fillOpacity: 0.3,    // Opacity of the fill
             radius: radiusInMeters // The radius in meters
         });
+        exposureCircle.bindPopup('<b>' + retailerName + '</b><br>' + address + '<br>' + city + ', ID<br>' + retailerType);
         exposureZonesGroup.addLayer(exposureCircle);
     });
 
@@ -339,21 +499,27 @@
     function createSchoolsChart() {
         const data = [{
             values: [761,82],
-            labels: ['Public Schools', 'Private Schools'],
+            labels: ['Public', 'Private'],
             type: 'pie',
             marker: {
                 colors: ['#0571b0', '#fee090']
             },
             textinfo: 'label+percent',
             textposition: 'inside',
-            hoverinfo: 'label+value+percent'
+            hoverinfo: 'label+value+percent',
+            insidetextfont: { size: 16 }
         }];
 
         const layout = {
             title: 'Idaho K-12 Schools by Type',
             showlegend: false,
             height: 350,
-            margin: { l: 30, r: 30, b: 30, t: 30 }
+            margin: { l: 30, r: 30, b: 30, t: 30 },
+            hoverlabel: {
+                font: {
+                  size: 16 
+                }
+            }
         };
 
         Plotly.newPlot('schoolsChart', data, layout, {responsive: true});
@@ -370,14 +536,20 @@
             },
             textinfo: 'label+percent',
             textposition: 'inside',
-            hoverinfo: 'label+value+percent'
+            hoverinfo: 'label+value+percent',
+            insidetextfont: { size: 16 }
         }];
 
         const layout = {
             title: 'Tobacco Retailers by Type',
             showlegend: false,
             height: 350,
-            margin: { l: 30, r: 30, b: 30, t: 30 }
+            margin: { l: 30, r: 30, b: 30, t: 30 },
+            hoverlabel: {
+                font: {
+                  size: 16 
+                }
+            }
         };
 
         Plotly.newPlot('retailersChart', data, layout, {responsive: true});
@@ -454,14 +626,14 @@
             let spendingCounty = countyData.ESRI2025_AvgHHSpendingTobacco;
             let spendingBar = spendingCounty/10;
             let medianIncome = countyData.ESRI2025_MedianHH_Income;
-            let healthcareSpending = countyData.ESRI2025_AvgHealthcareSpending;
+            //let healthcareSpending = countyData.ESRI2025_AvgHealthcareSpending;
             
             let pctRetail500ftRetail = 0;
             if (retail500ftRetail > 0) pctRetail500ftRetail =  (retail500ftRetail/totRetail * 100).toFixed(1);
             if (pctRetail500ftRetail == 0) {
-                document.getElementById('statZero-r2r500-county').innerHTML = '0%<br>';
+                //document.getElementById('statZero-r2r500-county').innerHTML = '0%<br>';
             } else {
-                document.getElementById('statZero-r2r500-county').innerHTML = '';
+                //document.getElementById('statZero-r2r500-county').innerHTML = '';
             }
             
             //let pctRetail1000ftRetail =  0;
@@ -471,12 +643,13 @@
             let level = "";
             let bgColor = "";
             let txtColor = "";
+            let per1000peopleBar = 0;
             if (retailPer1kPeople < 1 ) {
-                level = "low"; bgColor = "bg-success"; txtColor = "text-light";
-            } else if (retailPer1kPeople > 1.001 && retailPer1kPeople < 2.001) {
-                level = "medium"; bgColor = "bg-warning"; txtColor = "text-dark";
-            } else if (retailPer1kPeople > 2 ) {
-                level = "high"; bgColor = "bg-danger"; txtColor = "text-light";
+                level = "low (" + retailPer1kPeople.toFixed(2) + ")"; bgColor = "bg-success"; txtColor = "text-light"; per1000peopleBar = 33;
+            } else if (retailPer1kPeople > 0.999 && retailPer1kPeople < 1.5) {
+                level = "moderate (" + retailPer1kPeople.toFixed(2) + ")"; bgColor = "bg-warning"; txtColor = "text-dark"; per1000peopleBar = 66;
+            } else if (retailPer1kPeople > 1.5 ) {
+                level = "high (" + retailPer1kPeople.toFixed(2) + ")"; bgColor = "bg-danger"; txtColor = "text-light"; per1000peopleBar = 100;
             } 
             
             let totSchools = countyData.TotalSchools2023;
@@ -484,9 +657,9 @@
             let pctSchools1k = 0;
             if ( schools1kRetail > 0 ) pctSchools1k = (schools1kRetail/totSchools * 100).toFixed(1);
             if (pctSchools1k == 0) {
-                document.getElementById('statZero-schoolsNear-county').innerHTML = '0%<br>';
+                //document.getElementById('statZero-schoolsNear-county').innerHTML = '0%<br>';
             } else {
-                document.getElementById('statZero-schoolsNear-county').innerHTML = '';
+                //document.getElementById('statZero-schoolsNear-county').innerHTML = '';
             }
 
             let totStudents = countyData.TotalStudents2023;
@@ -494,9 +667,9 @@
             let pctStudents1k = 0;
             if (students1kRetail > 0) pctStudents1k = (students1kRetail/totStudents * 100).toFixed(1);
             if (pctStudents1k == 0) {
-                document.getElementById('statZero-studentsNear-county').innerHTML = '0%<br>';
+                //document.getElementById('statZero-studentsNear-county').innerHTML = '0%<br>';
             } else {
-                document.getElementById('statZero-studentsNear-county').innerHTML = '';
+                //document.getElementById('statZero-studentsNear-county').innerHTML = '';
             }
             
             //let retail1kSch = countyData.Retail_in1000ft_of_School;
@@ -504,18 +677,18 @@
             //if (retail1kSch > 0) pctRetail1kSch = (retail1kSch/totRetail * 100).toFixed(1);
             
             let per1000people = retailPer1kPeople; 
-            let per1000peopleBar = retailPer1kPeople * 25;
+            //let per1000peopleBar = retailPer1kPeople * 25;
             
             const retailBarCounty = document.getElementById('retail-bar-county');
-            retailBarCounty.style.width = pctRetail500ftRetail + "%";
+            //retailBarCounty.style.width = pctRetail500ftRetail + "%";
             retailBarCounty.innerText = pctRetail500ftRetail + "%";
-
+            
             const schoolsBarCounty = document.getElementById('schools-bar-county');
-            schoolsBarCounty.style.width = pctSchools1k + "%";
+            //schoolsBarCounty.style.width = pctSchools1k + "%";
             schoolsBarCounty.innerText = pctSchools1k + "%";
 
             const studentsBarCounty = document.getElementById('students-bar-county');
-            studentsBarCounty.style.width = pctStudents1k + "%";
+            //studentsBarCounty.style.width = pctStudents1k + "%";
             studentsBarCounty.innerText = pctStudents1k + "%";
 
             const spendingBarCounty = document.getElementById('spending-bar-county');
@@ -536,8 +709,8 @@
             document.getElementById('totStudentsByCounty').textContent = totStudents.toLocaleString();
             document.getElementById('retailersPer1000ByCounty').textContent = retailPer1kPeople.toFixed(2);
             document.getElementById('avgSpending2025_byCnty').textContent = '$' + spendingCounty.toFixed(0);
-            document.getElementById('avgHealthcare2025_byCnty').textContent = '$' + (healthcareSpending.toFixed(0)).toLocaleString();
-            document.getElementById('medIncome2025_byCnty').textContent = '$' + (medianIncome.toFixed(0)).toLocaleString();
+            //document.getElementById('avgHealthcare2025_byCnty').textContent = '$' + (healthcareSpending.toFixed(0)).toLocaleString();
+            document.getElementById('medIncome2025_byCnty').textContent = '$' + parseInt(medianIncome).toLocaleString();
         } else {
             countyStatsElem.style.display = 'none';
             document.getElementById('totRetailByCounty').textContent = '';
@@ -545,7 +718,7 @@
             document.getElementById('totStudentsByCounty').textContent = '';
             document.getElementById('retailersPer1000ByCounty').textContent = '';
             document.getElementById('avgSpending2025_byCnty').textContent = '';
-            document.getElementById('avgHealthcare2025_byCnty').textContent = '';
+            //document.getElementById('avgHealthcare2025_byCnty').textContent = '';
             document.getElementById('medIncome2025_byCnty').textContent = '';
         }
     }
@@ -717,13 +890,13 @@
                 } else if (type === 'map') {
                     const content = section.querySelector('.story-content');
                     const mapStyle = section.dataset.mapStyle;
-                    console.log("mapStyle: " + mapStyle);
+                    //console.log("mapStyle: " + mapStyle);
                     
                     if (currentSection !== index) {
                         currentSection = index;
                         const lat = parseFloat(section.dataset.lat);
                         let lng = parseFloat(section.dataset.lng) - 3;
-                        if (mapStyle === 'boise' || mapStyle === 'proximity') lng = parseFloat(section.dataset.lng);
+                        if (mapStyle === 'adi' || mapStyle === 'boise' || mapStyle === 'proximity') lng = parseFloat(section.dataset.lng);
                         const zoom = parseInt(section.dataset.zoom);
 
                         map.flyTo([lat, lng], zoom, {
@@ -769,10 +942,10 @@
                 map.removeLayer(countyPolySpendingGroup);
                 document.querySelector('.spending-legend').style.display = 'none';
             }
-            if (map.hasLayer(countyPolyHealthcareGroup)) {
-                map.removeLayer(countyPolyHealthcareGroup);
-                document.querySelector('.healthcare-legend').style.display = 'none';
-            }
+            //if (map.hasLayer(countyPolyHealthcareGroup)) {
+            //    map.removeLayer(countyPolyHealthcareGroup);
+            //    document.querySelector('.healthcare-legend').style.display = 'none';
+            //}
             if (map.hasLayer(countyPolyIncomeGroup)) {
                 map.removeLayer(countyPolyIncomeGroup);
                 document.querySelector('.income-legend').style.display = 'none';
@@ -781,7 +954,22 @@
                 map.removeLayer(schoolDistGroup);
                 document.querySelector('.schdist-legend').style.display = 'none';
             }
-            
+            if (map.hasLayer(adi2023Group)) {
+                map.removeLayer(adi2023Group);
+                //map.removeLayer(retailersGroup);
+                map.removeLayer(exposureZonesGroup);
+                document.querySelector('.exposurezone-legend').style.display = 'none';
+                document.querySelector('.adi-legend').style.display = 'none';
+            }
+            if (map.hasLayer(countyRetailRatioGroup)) {
+                map.removeLayer(countyRetailRatioGroup);
+                document.querySelector('.ratio-county-legend').style.display = 'none';
+            }
+            if (map.hasLayer(districtRetailRatioGroup)) {
+                map.removeLayer(districtRetailRatioGroup);
+                document.querySelector('.ratio-district-legend').style.display = 'none';
+            }
+
             // Add appropriate overlay
             if (currentMapType === 'idaho') {
                 idahoBndyGroup.addTo(map);
@@ -801,17 +989,28 @@
             } else if (currentMapType === 'tobaccospending') {
                 countyPolySpendingGroup.addTo(map);
                 document.querySelector('.spending-legend').style.display = 'block';
-            } else if (currentMapType === 'healthcare') {
-                countyPolyHealthcareGroup.addTo(map);
-                document.querySelector('.healthcare-legend').style.display = 'block';
+            //} else if (currentMapType === 'healthcare') {
+            //    countyPolyHealthcareGroup.addTo(map);
+            //    document.querySelector('.healthcare-legend').style.display = 'block';
             } else if (currentMapType === 'income') {
                 countyPolyIncomeGroup.addTo(map);
                 document.querySelector('.income-legend').style.display = 'block';
+            } else if (currentMapType === 'ratioCounty') {
+                countyRetailRatioGroup.addTo(map);
+                document.querySelector('.ratio-county-legend').style.display = 'block';
+            } else if (currentMapType === 'ratioDistrict') {
+                districtRetailRatioGroup.addTo(map);
+                document.querySelector('.ratio-district-legend').style.display = 'block';
             } else if (currentMapType === 'districts') {
                 schoolDistGroup.addTo(map);
                 document.querySelector('.schdist-legend').style.display = 'block';
-            } else if (currentMapType === 'boise') {
-                idahoBndyGroup.addTo(map);
+            } else if (currentMapType === 'adi') {
+                adi2023Group.addTo(map);
+                exposureZonesGroup.addTo(map);
+                document.querySelector('.exposurezone-legend').style.display = 'block';
+                document.querySelector('.adi-legend').style.display = 'block';
+            //} else if (currentMapType === 'boise') {
+            //    idahoBndyGroup.addTo(map);
             }
         }
 
@@ -897,6 +1096,18 @@
     legendText += '<p class="small ms-3 mb-0">&nbsp; 0 &nbsp;10 &nbsp;20&nbsp; 30&nbsp; 40&nbsp; 50&nbsp; 60&nbsp; 70&nbsp; 80&nbsp; 90&nbsp;100</p>';
     legendText += '<p class="text-center mt-0 small">%</p></div>';
 
+    legendText += '<div class="ratio-county-legend" style="display:none"><hr /><h6 class="text-center">Retailers per 1,000<br>People (2024)</h6><p class="mb-0">';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#998ec3">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; < 1 (low)<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffbf">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; 1 - 1.5 (moderate)<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#f1a340">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; > 1.5 (high)';
+    legendText += '</p></div>';
+
+    legendText += '<div class="ratio-district-legend" style="display:none"><hr /><h6 class="text-center">Retailers per 1,000<br>People (2023)</h6><p class="mb-0">';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#998ec3">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; < 1 (low)<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffbf">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; 1 - 1.5 (moderate)<br>';
+    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#f1a340">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; > 1.5 (high)';
+    legendText += '</p></div>';
+
     legendText += '<div class="spending-legend" style="display:none"><hr /><h6 class="text-center">Average Household<br>Spending on<br>Smoking Products<br>in 2025</h6><p class="mb-0">';
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#225ea8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $550 - $630<br>';
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#41b6c4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $470 - $549<br>';
@@ -904,12 +1115,12 @@
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffcc">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $310 - $389';
     legendText += '</p></div>';
 
-    legendText += '<div class="healthcare-legend" style="display:none"><hr /><h6 class="text-center">Average Household<br>Healthcare Spending<br>in 2025</h6><p class="mb-0">';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#d7301f">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $8,000 - $8,999<br>';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fc8d59">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $7,000 - $7,999<br>';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fdcc8a">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $6,000 - $6,999<br>';
-    legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fef0d9">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $4,500 - $5,999';
-    legendText += '</p></div>';
+    //legendText += '<div class="healthcare-legend" style="display:none"><hr /><h6 class="text-center">Average Household<br>Healthcare Spending<br>in 2025</h6><p class="mb-0">';
+    //legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#d7301f">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $8,000 - $8,999<br>';
+    //legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fc8d59">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $7,000 - $7,999<br>';
+    //legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fdcc8a">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $6,000 - $6,999<br>';
+    //legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#fef0d9">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $4,500 - $5,999';
+    //legendText += '</p></div>';
 
     legendText += '<div class="income-legend" style="display:none"><hr /><h6 class="text-center">Median Household<br>Income in 2025</h6><p class="mb-0">';
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#238b45">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $80,000 - $100,000<br>';
@@ -917,7 +1128,6 @@
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#b2e2e2">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $60,000 - $69,999<br>';
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#edf8fb">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $46,000 - $59,999';
     legendText += '</p></div>';
-
 
     legendText += '<div class="schools-legend mb-2" style="display:none"><div class="blue-circle"></div> School</div>';
     legendText += '<div class="schools1k-legend mb-2" style="display:none"><div class="magenta-circle"></div> School within 1,000 ft of retail</div>';
@@ -938,6 +1148,25 @@
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#a1dab4">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; 10-14% <br>';
     legendText += '&nbsp;<span style="opacity:0.8;border:1px solid #555;background-color:#ffffcc">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; < 10%';
     legendText += '</p></div>';
+
+    legendText += '<div class="adi-legend mb-2" style="display:none">';
+    legendText += '<h6 class="text-center">Area Deprivation<br>Index (ADI), 2023</h6>';
+    legendText += '<p class="mb-0">';
+    legendText += '<span style="opacity:0.8;background-color:#3a3e94">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#4c77b0">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#76aaca">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#a8d1e0">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#cfe9ea">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#f3d890">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#f2ab65">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#ea704a">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#d03931">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    legendText += '<span style="opacity:0.8;background-color:#a20e30">&nbsp;&nbsp;&nbsp;&nbsp;</span><br>';
+    legendText += '&nbsp;1 &nbsp;2 &nbsp;3 &nbsp;4 &nbsp;5 &nbsp;6 &nbsp;7 &nbsp;8 &nbsp;9&nbsp;10';
+    legendText += '</p>';
+    legendText += '<table class="small" style="width:100%"><tbody><tr><td>least</td><td class="text-end">most</td></tr><tr></tbody></table>';
+    legendText += '<div class="text-center small">disadvantaged</div>';
+    legendText += '</div>';
     
     legendText += '</div>';
     
