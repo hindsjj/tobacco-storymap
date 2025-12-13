@@ -312,6 +312,8 @@ body, html {
 .alert-brown p { color: #fff; }
 .alert-brown h1, .alert-brown div, .alert-brown span  { color: lemonchiffon; }
 
+.alert-orange { background: #f1a340; color: #000; opacity: 0.8; }
+.alert-purple { background: #998ec3; color: #000; opacity: 0.8; }
 
 .progress {
     background-color: #fff;

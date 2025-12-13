@@ -50,14 +50,14 @@ const idahoAvgSmokeSpending = 444.07;
             });
 
             switch(true) {
-                case (spending < 390): spendingColor = '#ffffcc'; break;
-                case (spending < 470): spendingColor = '#a1dab4'; break;
-                case (spending < 550): spendingColor = '#41b6c4'; break;
-                default: spendingColor = '#225ea8'; break;
+                case (spending < 390): spendingColor = '#ffffcc'; alertColorS = 'warning'; break;
+                case (spending < 470): spendingColor = '#a1dab4'; alertColorS = 'success'; break;
+                case (spending < 550): spendingColor = '#41b6c4'; alertColorS = 'info'; break;
+                default: spendingColor = '#225ea8'; alertColorS = 'primary'; break;
             }
 
             layer.setStyle({ fillColor: spendingColor });
-            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>2025 Avg Household Spending<br>on Smoking Products: <strong>$" + spending.toFixed(0) + "</strong></p>");
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-" + alertColorS + "'>2025 Avg Household Spending<br>on Smoking Products: <strong>$" + spending.toFixed(0) + "</strong></p>");
             
         }
     }).addTo(countyPolySpendingGroup);
@@ -121,7 +121,7 @@ const idahoAvgSmokeSpending = 444.07;
             }
 
             layer.setStyle({ fillColor: incomeColor });
-            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>2025 Median Household<br>Income: <strong>$" + income.toLocaleString() + "</strong></p>");
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-success'>2025 Median Household<br>Income: <strong>$" + income.toLocaleString() + "</strong></p>");
             
         }
     }).addTo(countyPolyIncomeGroup);
@@ -147,13 +147,13 @@ const idahoAvgSmokeSpending = 444.07;
             });
 
             switch(true) {
-                case (countyRetailRatio < 1): countyRetailRatioColor = '#998ec3'; break;
-                case (countyRetailRatio < 1.5): countyRetailRatioColor = '#ffffbf'; break;
-                default: countyRetailRatioColor = '#f1a340'; break;
+                case (countyRetailRatio < 1): countyRetailRatioColor = '#998ec3'; alertColor = 'purple'; break;
+                case (countyRetailRatio < 1.5): countyRetailRatioColor = '#ffffbf'; alertColor = 'warning'; break;
+                default: countyRetailRatioColor = '#f1a340'; alertColor = 'orange'; break;
             }
 
             layer.setStyle({ fillColor: countyRetailRatioColor });
-            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-warning'>Number of tobacco retailers per 1,000 people: <strong>" + countyRetailRatio.toFixed(2) + "</strong></p>");
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " County</h5><p style='font-size:16px' class='alert alert-" + alertColor + "'>Number of tobacco retailers per 1,000 people: <strong>" + countyRetailRatio.toFixed(2) + "</strong></p>");
             
         }
     }).addTo(countyRetailRatioGroup);
@@ -179,13 +179,13 @@ const idahoAvgSmokeSpending = 444.07;
             });
 
             switch(true) {
-                case (districtRetailRatio < 1): districtRetailRatioColor = '#998ec3'; break;
-                case (districtRetailRatio < 1.5): districtRetailRatioColor = '#ffffbf'; break;
-                default: districtRetailRatioColor = '#f1a340'; break;
+                case (districtRetailRatio < 1): districtRetailRatioColor = '#998ec3'; alertColorD = 'purple'; break;
+                case (districtRetailRatio < 1.5): districtRetailRatioColor = '#ffffbf'; alertColorD = 'warning'; break;
+                default: districtRetailRatioColor = '#f1a340'; alertColorD = 'orange'; break;
             }
 
             layer.setStyle({ fillColor: districtRetailRatioColor });
-            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " District</h5><p style='font-size:16px' class='alert alert-warning'>Number of tobacco retailers per 1,000 people: <strong>" + districtRetailRatio.toFixed(2) + "</strong></p>");
+            layer.bindPopup("<h5 class='mb-1'>" + feature.properties.NAME + " District</h5><p style='font-size:16px' class='alert alert-" + alertColorD + "'>Number of tobacco retailers per 1,000 people: <strong>" + districtRetailRatio.toFixed(2) + "</strong></p>");
             
         }
     }).addTo(districtRetailRatioGroup);
@@ -328,6 +328,11 @@ const idahoAvgSmokeSpending = 444.07;
                     const matchedData = adiLookup[feature.properties.GEOID];
                     if (matchedData) {
                         const rank = matchedData.ADI_STATERNK;
+                        if (rank < 3) rankColor = "primary";
+                        if (rank < 6 && rank > 2) rankColor = "info";
+                        if (rank == 6) rankColor = "warning";
+                        if (rank == 7 || rank == 8) rankColor = "orange";
+                        if (rank > 8) rankColor = "danger";
                         const natRank = matchedData.ADI_NATRANK;
                         if (rank === "GQ" || rank === "PH" || rank === "GQ-PH") {
                             layer.bindPopup(
@@ -339,7 +344,7 @@ const idahoAvgSmokeSpending = 444.07;
                             layer.bindPopup(
                                 `<div class="h5">Area Deprivation Index</div>` +
                                 //`<div class="fs-6 alert alert-warning"><strong>State Decile:</strong> ${rank}<br>` +
-                                `<div class="fs-6 alert alert-warning">ADI within Idaho: <strong>${rank}</strong> out of 10</div>` +
+                                `<div class="fs-6 alert alert-${rankColor}">ADI within Idaho: <strong>${rank}</strong> out of 10</div>` +
                                 //`<strong>National Percentile:</strong> ${natRank}</div>` +
                                 `<div class="mt-2">Higher values indicate more disadvantaged<br />Census block level, FIPS: ${feature.properties.GEOID}</div>`
                             );
@@ -644,6 +649,7 @@ const idahoAvgSmokeSpending = 444.07;
             let bgColor = "";
             let txtColor = "";
             let per1000peopleBar = 0;
+
             if (retailPer1kPeople < 1 ) {
                 level = "low (" + retailPer1kPeople.toFixed(2) + ")"; bgColor = "bg-success"; txtColor = "text-light"; per1000peopleBar = 33;
             } else if (retailPer1kPeople > 0.999 && retailPer1kPeople < 1.5) {
@@ -797,28 +803,40 @@ const idahoAvgSmokeSpending = 444.07;
             let totRetail = districtData.TotalRetailers2024;
             let retail500ftRetail = districtData.Retail_in500ft_of_Retail_2024;
             let retail1000ftRetail = districtData.Retail_in1000ft_of_Retail_2024;
-            
+
             let pctRetail500ftRetail = 0;
             if (retail500ftRetail > 0) pctRetail500ftRetail = (retail500ftRetail/totRetail * 100).toFixed(1);
             if (pctRetail500ftRetail == 0) {
-                document.getElementById('statZero-r2r500-district').innerHTML = '0%<br>';
+                //document.getElementById('statZero-r2r500-district').innerHTML = '0%<br>';
             } else {
-                document.getElementById('statZero-r2r500-district').innerHTML = '';
+                //document.getElementById('statZero-r2r500-district').innerHTML = '';
             }
             
             //let pctRetail1000ftRetail =  0;
             //if (retail1000ftRetail > 0) pctRetail1000ftRetail = (retail1000ftRetail/totRetail * 100).toFixed(1);
             
             let retailPer1kPeople = totRetail/population * 1000;
+            let level = "";
+            let bgColor = "";
+            let txtColor = "";
+            let per1000peopleBar = 0;
+
+            if (retailPer1kPeople < 1 ) {
+                level = "low (" + retailPer1kPeople.toFixed(2) + ")"; bgColor = "bg-success"; txtColor = "text-light"; per1000peopleBar = 33;
+            } else if (retailPer1kPeople > 0.999 && retailPer1kPeople < 1.5) {
+                level = "moderate (" + retailPer1kPeople.toFixed(2) + ")"; bgColor = "bg-warning"; txtColor = "text-dark"; per1000peopleBar = 66;
+            } else if (retailPer1kPeople > 1.5 ) {
+                level = "high (" + retailPer1kPeople.toFixed(2) + ")"; bgColor = "bg-danger"; txtColor = "text-light"; per1000peopleBar = 100;
+            } 
             
             let totSchools = districtData.TotalSchools2023;
             let schools1kRetail = districtData.Schools_in1000ft_of_Retail;
             let pctSchools1k = 0;
             if(schools1kRetail > 0) pctSchools1k = (schools1kRetail/totSchools * 100).toFixed(1);
             if (pctSchools1k == 0) {
-                document.getElementById('statZero-schoolsNear-district').innerHTML = '0%<br>';
+                //document.getElementById('statZero-schoolsNear-district').innerHTML = '0%<br>';
             } else {
-                document.getElementById('statZero-schoolsNear-district').innerHTML = '';
+                //document.getElementById('statZero-schoolsNear-district').innerHTML = '';
             }
             
             let totStudents = districtData.TotalStudents2023;
@@ -826,9 +844,9 @@ const idahoAvgSmokeSpending = 444.07;
             let pctStudents1k = 0;
             if (students1kRetail > 0) pctStudents1k = (students1kRetail/totStudents * 100).toFixed(1);
             if (pctStudents1k == 0) {
-                document.getElementById('statZero-studentsNear-district').innerHTML = '0%<br>';
+                //document.getElementById('statZero-studentsNear-district').innerHTML = '0%<br>';
             } else {
-                document.getElementById('statZero-studentsNear-district').innerHTML = '';
+                //document.getElementById('statZero-studentsNear-district').innerHTML = '';
             }
             
             let retail1kSch = districtData.Retail_in1000ft_of_School;
@@ -846,6 +864,12 @@ const idahoAvgSmokeSpending = 444.07;
             const studentsBarDistrict = document.getElementById('students-bar-district');
             studentsBarDistrict.style.width = pctStudents1k + "%";
             studentsBarDistrict.innerText = pctStudents1k + "%";
+
+            const per1000BarSD = document.getElementById('per1000-bar-district');
+            per1000BarSD.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'text-light', 'text-dark');
+            per1000BarSD.classList.add(bgColor, txtColor);
+            per1000BarSD.style.width = per1000peopleBar + "%";
+            per1000BarSD.innerText = level;
             
             // Populate divs with the data
             document.getElementById('totRetailBySD').textContent = totRetail.toLocaleString();

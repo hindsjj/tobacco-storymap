@@ -84,7 +84,7 @@
                 <div class="row text-center mt-5">
                     <div class="col-md-6">
                         <div id="schoolsChart"></div>
-                        <p class="mt-1 mb-5">As of 2023, 90% of schools in Idaho are public schools.</p>
+                        <p class="mt-1 mb-5">In 2023-2024, 90% of schools in Idaho are public schools.</p>
                     </div>
                     <div class="col-md-6">
                         <div id="retailersChart"></div>
@@ -497,10 +497,18 @@
                                 <div class="value" id="totRetailBySD">-</div>
                                 <div class="label mb-2">Tobacco Retailers</div>
                                 <img src="img/tobacco_retailer_icon.png" style="width:100%;max-width:180px" />
+                                <div class="alert alert-brown mx-2 mt-4 text-start">
+                                    <div class="d-inline h3" id="retail-bar-district"></div>
+                                    <p class="d-inline"> of retailers are <span class="fs-6 fw-bold">within 500 ft</span> of another retailer</p>
+                                </div>
+                                <!--<div class="value" id="totRetailBySD">-</div>
+                                <div class="label mb-2">Tobacco Retailers</div>
+                                <img src="img/tobacco_retailer_icon.png" style="width:100%;max-width:180px" />
                                 <div class="progress mt-4" style="height: 25px;">
                                     <div id="retail-bar-district" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
                                 <p class="small text-muted mt-1"><span id="statZero-r2r500-district" class="fw-bold fs-5"></span> Percent of retailers within 500 feet of another retailer</p>
+                                -->
                             </div>
                         </div>
                         
@@ -509,10 +517,19 @@
                                 <div class="value" id="totSchoolsBySD">-</div>
                                 <div class="label mb-2">Total Schools</div>
                                 <img src="img/school_icon.png" style="width:100%;max-width:180px" />
+                                <div class="alert alert-brown mx-2 mt-4 text-start">
+                                    <div class="d-inline h3" id="schools-bar-district"></div>
+                                    <p class="d-inline"> of schools are <span class="fs-6 fw-bold">within 1,000 ft</span> of at least one tobacco retailer</p>
+                                </div>
+                                <!--
+                                <div class="value" id="totSchoolsBySD">-</div>
+                                <div class="label mb-2">Total Schools</div>
+                                <img src="img/school_icon.png" style="width:100%;max-width:180px" />
                                 <div class="progress mt-4" style="height: 25px;">
                                     <div id="schools-bar-district" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
                                 <p class="small text-muted mt-1"><span id="statZero-schoolsNear-district" class="fw-bold fs-5"></span> Percent of schools near retail</p>
+                                -->
                             </div> 
                         </div>
                         
@@ -521,19 +538,38 @@
                                 <div class="value" id="totStudentsBySD">-</div>
                                 <div class="label mb-2">Total Students</div>
                                 <img src="img/students_icon.png" style="width:100%;max-width:180px" />
+                                <div class="alert alert-brown mx-2 mt-4 text-start">
+                                    <div class="d-inline h3" id="students-bar-district"></div>
+                                    <p class="d-inline"> of students are <span class="fs-6 fw-bold">within 1,000 ft</span> of at least one tobacco retailer</p>
+                                </div>
+                                <!--
+                                <div class="value" id="totStudentsBySD">-</div>
+                                <div class="label mb-2">Total Students</div>
+                                <img src="img/students_icon.png" style="width:100%;max-width:180px" />
                                 <div class="progress mt-4" style="height: 25px;">
                                     <div id="students-bar-district" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
                                 </div>
                                 <p class="small text-muted mt-1"><span id="statZero-studentsNear-district" class="fw-bold fs-5"></span> Percent of students near retail</p>
+                                -->
                             </div>
                             
                         </div>
 
                         <div class="col-md-4">
                             <div class="stat-box text-center">
-                                <div class="value" id="retailersPer1000BySD">-</div>
-                                <div class="label mb-2">Retailer(s) for every 1,000 people</div>
+                                <div class="d-none value" id="retailersPer1000BySD">-</div>
+                                <div class="d-none label mb-2">Retailer(s) for every 1,000 people</div>
+                                <div class="value fs-5 mb-2">Tobacco Retailer Density Relative to Population</div>
                                 <!--<img src="img/retail_per_1000_people.png" style="width:100%;max-width:300px" />-->
+                                <div class="progress mt-4" style="height: 25px;">
+                                    <div id="per1000-bar-district" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <p class="small text-muted mt-3"> Retailers per 1,000 people</p>
+                                <table class="table table-sm small"><tbody>
+                                    <tr><td>low</td><td>moderate</td><td>high</td></tr>
+                                    <tr><td>< 1</td><td>1 - 1.5</td><td>> 1.5</td></tr>
+                                </tbody></table>
+
                             </div>
                         </div>
                         
@@ -560,23 +596,39 @@
         <!-- Explore Further -->
         <div class="chart-section" data-type="chart">
             <div class="chart-container">
-                <h2>References (working on this)</h2>
-                <ul>
-                    <li>Population estimates (2024, 2025), Consumer Spending Tobacco (2025), Median Household Income (2025)<br>
-                        <a href="https://www.esri.com/en-us/arcgis/products/arcgis-data/explore/demographics-data" target="_blank">ESRI Demographic</a> (Vintage 2025)
-                    </li>
-                    <li>School districts, school district populations, enrollments<br>
-                        <a href="https://www.census.gov/programs-surveys/saipe.html" target="_blank">SAIPE 2023</a>
-                    </li>
-                    <li>Tobacco retailers &mdash; personal email from ???</li>
-                    <li>Public (and Private?) Schools (2023, 2024)<br>
-                        <a href="https://state-of-idaho-shared-resources-idaho.hub.arcgis.com/search" target="_blank">State of Idaho Shared Resources</a>
-                    </li>
-                    <li><a href="https://www.sde.idaho.gov/about-us/departments/school-choice/private-schools/" target="_blank">Private schools</a></li>
-                </ul>
-                <hr />
+                <h2>References</h2>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Population estimates (2024, 2025)<br>Consumer Spending Tobacco (2025)<br>Median Household Income (2025)</td>
+                            <td><a href="https://www.esri.com/en-us/arcgis/products/arcgis-data/explore/demographics-data" target="_blank">ESRI Demographics</a><br>Vintage 2025</td>
+                        </tr>
+                        <tr>
+                            <td>School districts, school district populations</td>
+                            <td><a href="https://www.census.gov/programs-surveys/saipe.html" target="_blank">SAIPE 2023</a></td>
+                        </tr>
+                        <tr>
+                            <td>Public and Private School Data (2023-2024)</td>
+                            <td><a href="https://nces.ed.gov/">National Center for Education Statistics (NCES)</a><br>[ <a href="https://nces.ed.gov/ccd/schoolsearch/" target="_blank">public</a>, <a href="https://nces.ed.gov/surveys/pss/privateschoolsearch/" target="_blank">private</a> ]</td>
+                        </tr>
+                        <tr>
+                            <td>Tobacco retailer names, locations (2024)</td>
+                            <td>Person email from Idaho Department of Health and Welfare</td>
+                        </tr>
+                        <tr>
+                            <td>Area Deprivation Index (ADI)</td>
+                            <td><a href="https://www.neighborhoodatlas.medicine.wisc.edu/" target="_blank">Neighborhood Atlas</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <br><br><br>
                 <h2>Want to Dig Deeper?</h2>
                 <p class="text-center"><a class="btn btn-warning" href="https://modelingidahohealth.org/tobacco-map-2023-24" target="_blank">Visit our Tobacco Map and county summary page</a></p>
+                <br />
+                <hr />
+                <br />
+                <p class="small text-center">Story map developed by Research Computing and Data Services at University of Idaho.<br>Illustrations by Julene Ewert.</p>
             </div>
         </div>
 
