@@ -19389,7 +19389,7 @@ const schools2023 = [
       "Within1000ft": "no"
     },
     {
-      "Type": "tribal",
+      "Type": "public",
       "Latitude": 47.147718,
       "Longitude": -116.91545,
       "NCES_PSS_School_ID": "",
@@ -19412,7 +19412,7 @@ const schools2023 = [
       "Within1000ft": "no"
     },
     {
-      "Type": "tribal",
+      "Type": "public",
       "Latitude": 43.01508,
       "Longitude": -112.43742,
       "NCES_PSS_School_ID": "",

@@ -196,8 +196,9 @@ body, html {
 
 .story-content p {
     color: #34495e;
-    line-height: 1.8;
-    font-size: 1.1rem;
+    line-height: 1.6 /*1.8*/;
+    font-size: 1rem /*1.1rem*/;
+    margin-bottom: 18px;
 }
 
 .stat-highlight {
@@ -305,8 +306,9 @@ body, html {
     font-size: 1rem;
 }
 
-.alert-brown {
+.alert-brown, .btn-brown {
     background-color: #524037;
+    color: #fff;
     border-radius: 10px;
 }
 .alert-brown p { color: #fff; }

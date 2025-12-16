@@ -503,7 +503,7 @@ const idahoAvgSmokeSpending = 444.07;
     // Create Schools Chart
     function createSchoolsChart() {
         const data = [{
-            values: [761,82],
+            values: [763,82],
             labels: ['Public', 'Private'],
             type: 'pie',
             marker: {

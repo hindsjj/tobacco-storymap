@@ -38,15 +38,51 @@
     <div id="map"></div>
 
     <div class="story-container">
-        <div class="spacer"></div>
+        <!--<div class="spacer"></div>-->
         
-        <!-- Idaho State Overview -->
+        <!-- Overview -->
+        <div class="chart-section" data-type="chart">
+            <div class="chart-container">
+                <h2 style="max-width:700px" class="mx-auto">Why Youth Exposure to Tobacco Products and Marketing Matters</h2>
+                <p>
+                    The tobacco retail environment, including convenience stores, gas stations, tobacco/vape shops, 
+                    and other outlets, is the primary setting for the selling and marketing of tobacco/nicotine products. 
+                    Youth are especially susceptible to tobacco access and marketing. Research supports that easy 
+                    access to tobacco products, tobacco displays, discounts, and advertisements normalizes tobacco use, 
+                    and increases the chances youth will try tobacco and use tobacco in the future. Retail exposure to 
+                    e-cigarette ads (vapes) is linked to a higher likelihood of vape use, vape brand preference, and a 
+                    perception that vapes are less harmful than cigarettes.
+                </p>
+                <p>
+                    A higher density of tobacco retailers (especially around schools and youth-oriented locations) is 
+                    associated with impulse (unintended) purchases, increased youth and adult tobacco use rates, and 
+                    less successful quit attempts<sup>1</sup>. Research shows that tobacco retail and marketing is more concentrated 
+                    (dense) in predominantly racially diverse and low-income communities.
+                </p>
+                <p class="text-center py-0">
+                    <img src="img/sch-retail-1000ft.png" class="img-fluid" style="max-width:700px;width:100%" />
+                </p>
+            </div>
+        </div>
+
         <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="idaho">
             <div class="container">
                 <div class="story-content">
-                    <h2>The State of Idaho</h2>
-                    <p>Idaho is home to over 800 K-12 schools serving over 300,000 students across diverse urban and rural communities. This study examines how tobacco retail locations intersect with the daily environments of school-age children.</p>
-                    <p>Understanding these patterns is crucial for public health policy, zoning regulations, and protecting youth from early tobacco exposure.</p>
+                    <h2>Youth Exposure to Tobacco Retail in Idaho</h2>
+                    <p>
+                        Idaho is home to over 800 K-12 public and private schools serving over 300,000 students. 
+                        There are over 1,600 tobacco retailers across Idaho. This work examines how the density 
+                        and proximity of tobacco retail environments intersect with the daily life of K-12 students. 
+                        This work does not explore associations between retail tobacco exposure and tobacco use 
+                        among youth or adults.
+                    </p>
+                    <p>
+                        Measuring tobacco retail density and proximity to Idaho youth is important. It is well 
+                        documented that increased exposure to tobacco products, marketing, and promotions is 
+                        associated with youth tobacco experimentation and future use. Understanding youth tobacco 
+                        retail exposure helps guide support for health education and actions to limit tobacco 
+                        retail product and marketing exposure.
+                    </p>
                     <hr />
                     <p>LEGEND:&nbsp;&nbsp; <span class="blue-circle"></span> School &nbsp;&nbsp; <span class="square"></span> Tobacco Retailer</p>
                 </div>
@@ -87,52 +123,144 @@
                     </div>
                     <div class="col-md-6">
                         <div id="retailersChart"></div>
-                        <p class="mt-1">Convenience stores and gas stations make up the vast majority of tobacco retail, creating high accessibility.</p>
+                        <p class="mt-1">
+                            Convenience stores and gas stations make up most of the tobacco retail, exposing 
+                            youth regularly to tobacco products, marketing, and promotion.
+                        </p>
                     </div>
                     <div class="col-md-12 small">
                         <hr />
                         <p class="mt-3">Data for schools (2023-2024) are from the <a href="https://nces.ed.gov/" target="_blank">National Center for Education Statistics (NCES)</a>. 
-                            Data for tobacco retailers are from Idaho Department of Health &amp; Welfare (personnal communication). </p>
+                            Data for tobacco retailers are from Idaho Department of Health &amp; Welfare (personal communication). </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Proximity Map -->
-        <div class="story-section" data-lat="42.88" data-lng="-112.47" data-zoom="13" data-type="map" data-map-style="proximity">
-            <div class="container">
-                <div class="story-content">
-                    <h2>Retail Proximity</h2>
-                    <p>A common measure of exposure to tobacco retail is 1,000 feet. 
-                        For this analysis, we define vulnerable areas for youth, or "tobacco exposure zones", 
-                        as those areas within a 1,000-foot radius of a tobacco retailer. 
-                        Exposure zones are indicated by grey circles on the map. Magenta circles 
-                        indicate schools that lie within tobacco exposure zones.
-                    </p>
-                    <p>Notice the dense clustering of tobacco retail in central areas of Pocatello, which increases competitive pricing and creates advertising hotspots.</p>
-                    <hr />
-                    <p>LEGEND:<br>
-                        <span class="blue-circle"></span> School<br>
-                        <span class="magenta-circle"></span> School within 1,000 ft of tobacco retailer<br>
-                        <span class="grey-circle"></span> Tobacco exposure zone
-                    </p>
-                    <!--
-                    <p>EXPLANATION:</p>
-                    <p>The tobacco exposure zone is illustrated by the grey circle extending 1,000 feet around a tobacco retailer (T). 
-                        The magenta circle (S) is a school that lies within 1,000 feet of the tobacco retailer. The blue circles (S)
-                        are schools that lie outside of the exposure zone.
-                    </p>
-                    <p class="text-center"><img src="img/sch_retail_1000ft.png" class="img-fluid" style="width:220px" /></p>
-                    -->
+        <!-- Retail Density Overview -->
+        <div class="chart-section" data-type="chart">
+            <div class="chart-container">
+                <h2>Tobacco Retail Density</h2>
+                <div class="row mt-4">
+                    <div class="col-md-7">
+                        <p class="mt-4">
+                            Research supports that high tobacco retail density is associated with earlier youth 
+                            use, higher youth and adult use and lower success quitting tobacco. Measuring tobacco 
+                            density provides important information on accessibility and exposure to tobacco 
+                            products and promotions.
+                        </p>
+                        <p>
+                            This work measures the density of Idaho tobacco retail per 1,000 people at the county 
+                            and school district level, a common tobacco density measure. Using this rate allows for 
+                            comparisons between small and larger populations.
+                        </p>
+                    </div>
+                    <div class="col-md-5">
+                        <p>
+                            <img src="img/retailer_per_1000_people2.png" class="img-fluid">
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Proximity Analysis & Retail Clustering -->
+        <!-- County Map: Ratio of Retail to 1,000 people -->
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="ratioCounty">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Tobacco Retail Density by County</h2>
+                    <p>
+                        Overall, there are 0.83 tobacco retailers per 1,000 people in Idaho. 
+                        Tobacco retail density is higher in rural Idaho counties.
+                    </p>
+                    <p>
+                        The emerging standard being used to limit youth exposure to tobacco advertising and 
+                        promotion is <strong>1 retailer per 1,000 to 2,000 residents</strong>. This standard 
+                        is used to set a cap for issuing licenses for new tobacco retailers.
+                    </p>
+                    <p>
+                        On the map, purple indicates relatively low retail density, yellow indicates moderate density,  
+                        and orange indicates statistically high retail density. 
+                    </p>
+                    <p>Click on a county to see details.</p>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- School Districts Map: Ratio of Retail to 1,000 people -->
+        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="ratioDistrict">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Tobacco Retail Density by School District</h2>
+                    <p>
+                        Displaying tobacco retail density per 1,000 people by school district provides 
+                        a more complete picture of youth tobacco exposure. In general, students in rural 
+                        and smaller school districts have greater tobacco retail exposure.
+                    </p>
+                    <p>
+                        Areas with densities with over 2 or 3 tobacco retailers per 1,000 people are often cited as 
+                        examples of <em>tobacco swamps</em>, or areas with extreme retailer concentration.
+                    </p>
+                    <p>
+                        On the map, purple indicates relatively low retail density, yellow indicates moderate density,  
+                        and orange indicates statistically high retail density. 
+                    </p>
+                    <p>Click on a district to see details.</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Proximity Overview -->
         <div class="chart-section" data-type="chart">
             <div class="chart-container">
+                <h2>Tobacco Retail Proximity to Schools</h2>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <p>
+                            Research supports distorted perceptions of tobacco use, earlier tobacco initiation, 
+                            higher tobacco use, and lower quitting success when retailers are close to schools 
+                            and other youth-oriented locations. Overall, almost 20% (19.6%) of schools in Idaho 
+                            are located within 1,000 feet of at least one tobacco retailer. There is great 
+                            tobacco retail proximity to school variation across the state.
+                        </p>
+                        <p>
+                            There is no law in Idaho that sets restrictions on the distance that a tobacco 
+                            retailer must maintain from schools. Nationwide, several states, counties and cities 
+                            restrict tobacco retailers within 500 or 1,000 feet of schools to reduce youth 
+                            exposure to tobacco products, marketing and promotion.
+                        </p>
+                        <hr />
+                        <p class="mt-5 text-center">
+                            The proximity of tobacco retailers to schools is a critical factor in 
+                            youth tobacco products and marketing exposure.
+                        </p>
+
+                        <div class="row justify-content-center">
+                            <div class="col-md-7 col-sm-12">
+                                <img src="img/sch-retail-1000ft.png" class="mb-4 mx-auto img-fluid" />
+                            </div>
+                            <div class="col-md-5 col-sm-12">
+                                <div class="alert alert-brown mx-4">
+                                    <h1 class="display-4 text-center">19.6%</h1>
+                                    <p class="text-center mb-0">of schools in Idaho are within <span class="fs-5" style="color:lemonchiffon"><strong>1,000 feet</strong></span> of at least one tobacco retailer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Proximity Analysis -->
+        <!--<div class="chart-section" data-type="chart">
+            <div class="chart-container">
                 <h2>Proximity to Schools</h2>
-                <p class="text-center">The proximity of tobacco retailers to schools is a critical factor in youth exposure.</p> 
+                <p class="text-center">
+                    The proximity of tobacco retailers to schools is a critical factor in youth tobacco products and marketing exposure.
+                </p> 
                 <div class="row justify-content-center">
                     <div class="col-md-7 col-sm-12">
                         <img src="img/sch-retail-1000ft.png" class="mb-4 mx-auto img-fluid" />
@@ -160,58 +288,101 @@
                     </div>
                 </div>
             </div>
+        </div>-->
+
+
+        <!-- Proximity Map -->
+        <div class="story-section" data-lat="42.88" data-lng="-112.47" data-zoom="13" data-type="map" data-map-style="proximity">
+            <div class="container">
+                <div class="story-content">
+                    <h2>Retail Proximity</h2>
+                    <p>
+                        This work describes youth 'tobacco exposure zones' as areas within a 1,000-foot radius 
+                        of a tobacco retailer, a distance commonly used to measure youth proximity to tobacco retail.
+                    </p>
+                    <p>
+                        Tobacco exposure zones are indicated by grey circles on the map. The magenta circles represent schools 
+                        that lie within a tobacco exposure zone.
+                    </p>
+                    <p>
+                        Notice the proximity of schools to tobacco retail in Pocatello. Many of these retailers are convenience 
+                        stores and are along daily routes to school. Nationwide, nearly half (47.5%) of youth visit convenience 
+                        stores at least once a week, and 14.9% visit daily for snacks and drinks<sup>2</sup>. Convenience store visits are 
+                        higher among youth living in rural areas and in areas of economic deprivation.
+                    </p>
+                    <p>
+                        Also notice the dense clustering of tobacco retail in central areas of Pocatello, which increases 
+                        competitive pricing and creates advertising hotspots.
+                    </p>
+                    <hr />
+                    <p>LEGEND:<br>
+                        <span class="blue-circle"></span> School &nbsp;&nbsp;
+                        <span class="magenta-circle"></span> School within 1,000 ft of tobacco retailer<br>
+                        <span class="grey-circle"></span> Tobacco exposure zone
+                    </p>
+                </div>
+            </div>
         </div>
 
-
+        <!--  Retail Clustering Overview -->
+        <div class="chart-section" data-type="chart">
+            <div class="chart-container">
+                <h2>Proximity Between Tobacco Retailers</h2>
+                <p>
+                    Research supports that clustering of tobacco retail is associated with higher tobacco use, 
+                    decreased success at quitting, and earlier youth tobacco initiation. Clustering of tobacco 
+                    retail increases price competition leading to tobacco discounts, lower everyday prices, and 
+                    increased marketing and promotions<sup>3</sup>.
+                </p> 
+                <p>
+                    This work maps and provides the number and percentage of tobacco retailers by county within 
+                    500 feet of one another, a common measure of high tobacco retail proximity. There is no legal 
+                    or accepted standard for distance between tobacco retailers in Idaho. Cities and counties 
+                    in the US have adopted laws and ordinances to restrict tobacco retail proximity.
+                </p>
+                <hr />
+                <!--<h2 class="text-center">Tobacco Retail Clustering</h2>-->
+                <p class="text-center">
+                    Clustering of multiple retailers increases competitive pricing and marketing intensity.
+                </p>
+                <div class="row justify-content-center">
+                    <div class="col-md-5 col-sm-12">
+                        <div class="alert alert-brown mx-4 mt-2">
+                            <h1 class="display-4 text-center">40.4%</h1>
+                            <p class="text-center mb-0">of tobacco retailers are within <span class="fs-5" style="color:lemonchiffon"><strong>500 feet</strong></span> of another retailer</p>
+                        </div>
+                    </div>
+                    <div class="col-md-7 col-sm-12">
+                        <img src="img/r2r_500ft.png" class="mb-4 mx-auto img-fluid" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
         <!-- School Districts Map: % Students within 1,000 ft retail -->
         <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="districts">
             <div class="container">
                 <div class="story-content">
-                    <h2>School Districts: Student Exposure to Retail</h2>
-                    <p>Idaho's public school districts vary dramatically in size, student population, and geographic setting. This map shows district boundaries across the state.</p>
-                    <p>Warmer colors on the map indicate higher percentages of students exposed to tobacco retail within the county. These are typically rural areas, with fewer schools and lower populations.</p>
-                    <p>Analyzing exposure at the district level helps identify which educational communities face the greatest challenges from nearby tobacco retail.</p>
+                    <h2>Student Exposure to Tobacco Retail by School District</h2>
+                    <p>
+                        Idaho's public school districts vary dramatically in size, student population, and 
+                        geographic setting. This map shows district boundaries across the state.
+                    </p>
+                    <p>
+                        Warmer colors on the map indicate higher percentages of students exposed to tobacco 
+                        retail within the district. These are typically rural areas, with fewer schools and 
+                        lower populations.
+                    </p>
+                    <p>
+                        Analyzing exposure at the district level helps identify which educational communities 
+                        face the greatest challenges from nearby tobacco retail.
+                    </p>
                     <p>Click on a district to see details.</p>
                 </div>
             </div>
         </div>
 
-
-        <!-- School Districts Map: Ratio of Retail to 1,000 people -->
-        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="ratioDistrict">
-            <div class="container">
-                <div class="story-content">
-                    <h2>School District Tobacco Retail Density</h2>
-                    <p>The public health field frequently uses <strong>1 retailer per 1,000 people</strong> 
-                        as a key benchmark, often setting it as a maximum cap for licensing new tobacco 
-                        retailers. Areas with densities over 2 or 3 retailers per 1,000 people are often cited as 
-                        examples of "tobacco swamps" or areas with extreme retailer concentration.
-                    </p>
-                    <p>On the map, purple indicates relatively low retail density, while 
-                        orange indicates statistically high retail density. 
-                        Yellow indicates moderate density.</p>
-                    <p>Click on a county to see details.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- County Map: Ratio of Retail to 1,000 people -->
-        <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="ratioCounty">
-            <div class="container">
-                <div class="story-content">
-                    <h2>County-Level Tobacco Retail Density</h2>
-                    <p>The public health field frequently uses <strong>1 retailer per 1,000 people</strong> 
-                        as a key benchmark, often setting it as a maximum cap for licensing new tobacco 
-                        retailers. Areas with densities over 2 or 3 retailers per 1,000 people are often cited as 
-                        examples of "tobacco swamps" or areas with extreme retailer concentration.
-                    </p>
-                    <p>On the map, purple indicates relatively low retail density, while 
-                        orange indicates statistically high retail density. 
-                        Yellow indicates moderate density.</p>
-                    <p>Click on a county to see details.</p>
-                </div>
-            </div>
-        </div>
 
         <!-- County Tobacco Spending Map -->
         <div class="story-section" data-lat="44.0682" data-lng="-115.5" data-zoom="6" data-type="map" data-map-style="tobaccospending">
@@ -236,8 +407,15 @@
             <div class="container">
                 <div class="story-content">
                     <h2>Median Income by County</h2>
-                    <p>The map displays median household income by county in Idaho. Darker shades indicate higher income levels. Click on a county to see details.</p>
-                    <p>More...</p>
+                    <p>
+                        This map displays median household income by county. The lightest shades indicate lower 
+                        income levels and the darker shades indicate higher income levels.
+                    </p>
+                    <p>
+                        Median household income is one of the strongest predictors of tobacco outlet density. 
+                        Lower median household income is often associated with higher tobacco retail density 
+                        compared to higher median household income<sup>4</sup>.
+                    </p>
                     <div class="d-flex justify-content-center">
                         <p><img src="img/income_icon.png" style="width:160px" class="pe-4" /></p>
                         <div class="stat-highlight fs-5">
@@ -254,16 +432,25 @@
         <div class="story-section" data-lat="43.6150" data-lng="-116.8023" data-zoom="10" data-type="map" data-map-style="adi">
             <div class="container">
                 <div class="story-content">
-                    <h2>Area Deprivation Index (ADI)</h2>
-                    <p>The Area Deprivation Index (ADI) is a scientifically validated measure of the adverse social exposome 
-                        (i.e., neighborhood disadvantage) that can be used to evaluate and improve factors that impact health 
-                        across populations.
-                    </p> 
+                    <h2>Area Deprivation Index</h2>
                     <p>
-                        The map displays ADI for Idaho (at the census block level), using state-only deciles. 
-                        Warmer colors indicate more disadvantaged areas, 
-                        while cooler colors indicate less disadvantaged areas. 
-                        Grey/black circles represent tobacco exposure zones. 
+                        The Area Deprivation Index (ADI) is a scientifically validated tool that ranks neighborhoods by 
+                        social disadvantage by looking at factors beyond just income.
+                    </p>
+                    <p>
+                        <span style="float:right"><img src="img/adi_deprivation.png" class="ps-3 pb-3" style="max-width:260px" /></span> 
+                        The ADI combines data on income, 
+                        employment, education, and housing to determine an ADI score between 1 (lowest deprivation) to 
+                        10 (highest deprivation). The ADI is useful to identify, evaluate, and improve factors that 
+                        impact health and quality of life across populations. 
+                    </p> 
+                    
+                    <p>
+                        The map displays ADI for Idaho at the census block level, using state-only deciles. 
+                        Warmer colors indicate more disadvantaged areas, while cooler colors indicate less 
+                        disadvantaged areas. The small grey/black circles represent tobacco exposure zones, 
+                        with the black areas indicating high concentration of tobacco retail. Note that some 
+                        of the most disadvantage areas also have the highest concentration of tobacco retail.  
                     </p>
                     <small>Source: 
                         <a href="https://www.neighborhoodatlas.medicine.wisc.edu/" target="_blank" alt="Neighborhood Atlas, Area Deprivation Index">Neighborhood Atlas</a> 
@@ -601,11 +788,34 @@
         <div class="chart-section" data-type="chart">
             <div class="chart-container">
                 <h2>Explore Further</h2>
-                <p class="text-center"><a class="btn btn-warning" href="https://modelingidahohealth.org/tobacco-map-2023-24" target="_blank">Visit our interactive tobacco map and county summary page</a></p>
+                <p class="text-center"><a class="btn btn-primary" href="https://modelingidahohealth.org/tobacco-map-2023-24" target="_blank">Visit our interactive tobacco map and county summary page</a></p>
                 <br />
                 <hr />
                 <br />
                 <h2>References</h2>
+                <p>
+                    <sup>1</sup> Mantey DS, Pasch KE, Loukas A, &amp; Perry CL (2019). Exposure to Point-of Sale Marketing of 
+                    Cigarettes and E-Cigarettes as Predictors of Smoking Cessation Behaviors. Nicotine &amp; Tobacco Research: 
+                    Official Journal of the Society for Research on Nicotine and Tobacco, 21(2), 212–219.
+                    https://doi.org/10.1093/ntr/ntx246
+                </p>
+                <p>
+                    <sup>2</sup> Sanders-Jackson A, Parikh NM, Schleicher NC, Fortmann SP, Henriksen, L. Convenience store 
+                    visits by US adolescents: Rationale for healthier retail environments. Health Place. 2015 Jul;34:63-6. 
+                    doi: 10.1016/j.healthplace.2015.03.011. Epub 2015 May 2. PMID: 25955537; PMCID: PMC4497830. 
+                </p>
+                <p>
+                    <sup>3</sup> Hawkins M, Edwards C, Amenyo B, White J, Boumatar K, Ndombo PK, Dahlquist C, Snelling A. 
+                    Cross-sectional examination of tobacco point-of-sale marketing practices by location and type of retail 
+                    environment in the District of Columbia. Tob Prev Cessat. 2025 Oct 31;11. doi: 10.18332/tpc/211431. 
+                    PMID: 41180517; PMCID: PMC12579267. 
+                </p>
+                <p class="mb-5">
+                    <sup>4</sup> Mills SD, Kong AY, Reimold AE, Baggett CD, Wiesen CA, Golden SD. Sociodemographic Disparities 
+                    in Tobacco Retailer Density in the United States, 2000-2017. Nicotine Tob Res. 2022 Jul 13;24(8):1291-1299. 
+                    doi: 10.1093/ntr/ntac020. PMID: 35079790; PMCID: PMC9278831. 
+                </p>
+                <h2>Data Sources</h2>
                 <table class="table table-striped">
                     <tbody>
                         <tr>
@@ -631,8 +841,14 @@
                     </tbody>
                 </table>
                 <br /><hr /><br />
-                
-                <p class="small text-center">Story map developed by Research Computing and Data Services at University of Idaho.<br>Illustrations by Julene Ewert.</p>
+                <p class="small text-center">
+                    This evaluation project was completed by the University of Idaho and made possible by the 
+                    Idaho Department of Health and Welfare, Project Filter. For more information: 
+                    ProjectFilter@dhw.idaho.gov
+                </p>
+                <p class="d-none small text-center">
+                    Story map developed by Research Computing and Data Services at University of Idaho.<br>Illustrations by Julene Ewert.
+                </p>
             </div>
         </div>
 
